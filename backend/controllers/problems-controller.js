@@ -57,6 +57,7 @@ const getAllProblems = async (req, res) => {
 			data: finalProblems,
 		});
 	} catch (err) {
+		console.log(err)
 		res.status(500).json({
 			status: "unsuccessful",
 			message: err.message,

@@ -8,11 +8,17 @@ const checkToken = (req, res, next) => {
         const token = authHeader.split(' ')[1];
         if (token != "null") {
             jwt.verify(token, process.env.SESSION_SECRET, (err, user) => {
-                if (err) return res.status(403).send('Invalid token');
+                if (err) {
+                    return res.status(403).send('Invalid token');
+                }
                 req.user = user;
+                next()
             })
+        } else {
+            next();
         };
-        next();
+    } else {
+        next()
     }
 };
 
@@ -35,7 +41,6 @@ const verifyToken = (req, res, next) => {
 };
 
 const adminOnly = (req, res, next) => {
-    console.log(req.user);
     if (!req.user.user.role || req.user.user.role != "admin") {
         res.status(200).json({
             status: 'unauthorized',
