@@ -47,7 +47,7 @@ const _runCode = async (language, code, input, expectedOutput) => {
         const { stdout, stderr } = await execPromiseWithTimeout(command);
         if (stderr.includes('timeout')) {
             return {
-                status: 'failed',
+                status: 'Failed',
                 message: 'Time limit exceeded',
                 output: 'Time limit exceeded'
             }
@@ -60,7 +60,7 @@ const _runCode = async (language, code, input, expectedOutput) => {
         }
 
         return {
-            status: passed ? 'passed' : 'failed',
+            status: passed ? 'Passed' : 'Failed',
             output: stdout.trim(),
             expectedOutput: expectedOutput ? expectedOutput.trim() : null,
             testCases: input,
@@ -69,14 +69,14 @@ const _runCode = async (language, code, input, expectedOutput) => {
     } catch (error) {
         if (error.stderr && error.stderr.includes("Killed")) {
             return {
-                status: 'failed',
+                status: 'Failed',
                 message: 'Memory limit exceeded',
                 output: 'Memory limit exceeded'
             };
         }
         if (error.stderr && error.stderr.includes("timeout")) {
             return {
-                status: 'failed',
+                status: 'Failed',
                 message: 'Time limit exceeded',
                 output: 'Time limit exceeded'
             };
@@ -88,7 +88,7 @@ const _runCode = async (language, code, input, expectedOutput) => {
         message = message.replace(filenameRegex, `<main.${extension}>`);
         message = message.replace(workingdirRegex, "");
         return {
-            status: 'failed',
+            status: 'Failed',
             message: message,
             output: message
         };
@@ -114,7 +114,7 @@ const submitCode = async (req, res) => {
 
     if (!req.user) {
         return res.status(400).json({
-            status: "failed",
+            status: "Failed",
             message: "User login required.",
             output: "User login required."
         });
@@ -123,7 +123,7 @@ const submitCode = async (req, res) => {
     // Validate the input
     if (!language || !code || !problemNumber) {
         return res.status(400).json({
-            status: "failed",
+            status: "Failed",
             message: "All fields are required: language, code, problemNumber",
             output: "All fields are required: language, code, problemNumber"
         });
@@ -135,7 +135,7 @@ const submitCode = async (req, res) => {
     const testCaseData = await TestCase.findOne({ _id: testCaseId });
     if (!testCaseData) {
         return res.status(400).json({
-            status: "failed",
+            status: "Failed",
             message: "Test case not found",
             output: "Test case not found"
         });
@@ -147,7 +147,7 @@ const submitCode = async (req, res) => {
     }));
     for (const [index, { input, expectedOutput }] of testCases.entries()) {
         const response = await _runCode(language, code, input, expectedOutput);
-        if (response.status == "failed") {
+        if (response.status == "Failed") {
             let verdict = "";
             if (response.message == "timeout") {
                 verdict = "TIMELIMITED ERROR";

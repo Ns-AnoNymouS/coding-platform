@@ -31,8 +31,8 @@ const ContributeTestCase = () => {
     try {
       const formattedData = {
         problemNumber: data.problemId,
-        input: data.input,
-        output: data.output,
+        givenInput: data.input,
+        correctOutput: data.output,
       }
       const response = await axios.post(
         "http://localhost:6969/add-test-case",

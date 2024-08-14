@@ -96,7 +96,8 @@ const addTestCase = async (req, res) => {
                 runValidators: true, // Run schema validations
             }
         );
-
+        await updatedTestCase.save()
+        
         try {
             await PendingTestCase.deleteOne({ problemNumber, givenInput, correctOutput });
         } catch { }

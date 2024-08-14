@@ -9,7 +9,7 @@ const checkToken = (req, res, next) => {
         if (token != "null") {
             jwt.verify(token, process.env.SESSION_SECRET, (err, user) => {
                 if (err) {
-                    return res.status(403).send('Invalid token');
+                    return res.status(403).json({message: 'Invalid token'});
                 }
                 req.user = user;
                 next()
@@ -27,15 +27,16 @@ const verifyToken = (req, res, next) => {
 
     // If the Authorization header is missing, send a 403 response
     if (!authHeader) {
-        return res.status(403).send('Token is required');
+        return res.status(403).jsin({message: 'Token is required'});
     }
     const token = req.headers['authorization'].split(' ')[1];
-    if (!token) return res.status(403).send('Token is required');
+    if (!token) {
+        return res.status(403).json({message: 'Token is required'});
+    }
 
     jwt.verify(token, process.env.SESSION_SECRET, (err, user) => {
-        if (err) return res.status(403).send('Invalid token');
+        if (err) return res.status(403).json({message: 'Invalid token'});
         req.user = user;
-        console.log(req.user)
         next();
     });
 };
