@@ -37,7 +37,7 @@ const CodingPlayGround = () => {
 			const response = await axios.post("http://localhost:6969/run-playground-code", formData, {
 				validateStatus: (status) => status >= 200 && status < 500,
 			});
-			if (response.data.status === 'passed') {
+			if (response.data.status === 'Passed') {
 				setOutputDetails(response.data);
 				showSuccessToast("Compiled Successfully!");
 			} else {
