@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Box, TextField, Typography, Button } from "@mui/material";
+import { Box, TextField, Typography, Button, Autocomplete } from "@mui/material";
 import axios from "axios";
 
 const schema = yup
   .object({
-    problemId: yup.string().required("Problem ID is required"),
+    problemName: yup.string().required("Problem Name is required"),
     input: yup.string().required("Input is required"),
     output: yup.string().required("Output is required"),
   })
   .required();
 
 const ContributeTestCase = () => {
+  const [problems, setProblems] = useState([]);
+  const [selectedProblem, setSelectedProblem] = useState(null);
   const {
     control,
     handleSubmit,
@@ -21,34 +23,50 @@ const ContributeTestCase = () => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      problemId: "",
+      problemName: null,  // Initial value set to null
       input: "",
       output: "",
     },
   });
 
+  useEffect(() => {
+    const getAllProblems = async () => {
+      try {
+        const response = await axios.get("http://localhost:6969/all-problems", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setProblems(response.data.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getAllProblems();
+  }, []);
+
   const onSubmit = async (data) => {
+    console.log(selectedProblem);
     try {
       const formattedData = {
-        problemNumber: data.problemId,
+        problemNumber: selectedProblem?.problem_id,
         givenInput: data.input,
         correctOutput: data.output,
-      }
+      };
+      console.log(formattedData);
       const response = await axios.post(
-        "http://localhost:6969/add-test-case",
+        "http://localhost:6969/add-pending-test-case",
         formattedData,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          validateStatus: (status) => status >= 200 && status < 500, // Ensure this is inside the configuration object
+          validateStatus: (status) => status >= 200 && status < 500,
         }
       );
 
-      console.log(formattedData);
-
       if (response.data.status === "ok") {
-        alert("Test cases added successfully");
+        alert("Test case sent for verification successfully.");
       } else {
         alert(response.data.message);
       }
@@ -74,16 +92,31 @@ const ContributeTestCase = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box mb={2}>
           <Controller
-            name="problemId"
+            name="problemName"
             control={control}
             render={({ field }) => (
-              <TextField
+              <Autocomplete
                 {...field}
-                label="Problem ID"
-                variant="outlined"
-                fullWidth
-                error={!!errors.problemId}
-                helperText={errors.problemId?.message}
+                options={problems}
+                getOptionLabel={(option) => option.title || ""}
+                isOptionEqualToValue={(option, value) =>
+                  option.title === value || value === ""
+                }
+                onChange={(_, newValue) => {
+                  field.onChange(newValue ? newValue.title : null);
+                  setSelectedProblem(newValue);
+                }}
+                value={selectedProblem || null} // Ensure correct value is used
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Problem Name"
+                    variant="outlined"
+                    fullWidth
+                    error={!!errors.problemName}
+                    helperText={errors.problemName?.message}
+                  />
+                )}
               />
             )}
           />

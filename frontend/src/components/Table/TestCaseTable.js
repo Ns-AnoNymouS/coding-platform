@@ -43,7 +43,7 @@ const TestCaseTable = ({ testCases }) => {
             {testCases.map((testCase, index) => (
               <TestCaseRowComponent
                 key={index}
-                serialNumber={testCase.serialNumber}
+                serialNumber={testCase.id}
                 onApprove={() => handleOpenModal(testCase)}
                 onDecline={() => handleOpenModal(testCase)}
               />
