@@ -60,7 +60,6 @@ const ContributeQuestion = () => {
       title: data.title,
       tags: data.tags
     }
-    console.log(format);
     try {
       const response = await axios.post(
         "http://localhost:6969/create-pending-problem",

@@ -40,8 +40,8 @@ const AdminPage = () => {
 
         // Check for successful response
         if (response.status === 200) {
-          console.log("Test Cases:", response.data.response);
-          setTestCasesData(response.data.response);
+          console.log("Test Cases:", response.data.data);
+          setTestCasesData(response.data.data);
         } else {
           console.error(
             "Failed to fetch test cases:",

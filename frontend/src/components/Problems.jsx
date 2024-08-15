@@ -102,7 +102,7 @@ useEffect(()=>{
     }
   };
   getAllProblems();
-})
+}, []);
 
   const filteredProblems = problems.filter((problem) => {
     const problemDifficulty = problem.difficulty
