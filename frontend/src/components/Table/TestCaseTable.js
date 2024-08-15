@@ -35,7 +35,8 @@ const TestCaseTable = ({ testCases }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Serial Number</TableCell>
+              <TableCell>Problem Number</TableCell>
+              <TableCell>Title</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -44,6 +45,8 @@ const TestCaseTable = ({ testCases }) => {
               <TestCaseRowComponent
                 key={index}
                 serialNumber={testCase.id}
+                problemNumber={testCase.problemNumber}
+                problemTitle={testCase.title}
                 onApprove={() => handleOpenModal(testCase)}
                 onDecline={() => handleOpenModal(testCase)}
               />

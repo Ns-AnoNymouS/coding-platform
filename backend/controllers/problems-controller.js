@@ -3,16 +3,29 @@ import Problem from "../models/problem-model.js";
 import Submission from "../models/submission-model.js";
 import TestCase from "../models/testcase-model.js";
 
-const getAllProblems = async (req, res) => {
+const getProblems = async (req, res) => {
 	try {
-		const { difficulty } = req.query;
+		const page = parseInt(req.query.page) || 1;
+		const limit = parseInt(req.query.limit) || 10;
+		const difficulty = req.query.difficulty;
+		const tag = req.query.tag;
+		const title = req.query.title;
 
 		let query = {};
 		if (difficulty) {
 			query.difficulty = difficulty;
 		}
+		if (tag) {
+			query.tags = { $in: [new RegExp(tag, 'i')] };
+		}
+		if (title) {
+			query.title = new RegExp(title, 'i');
+		}
 
-		const problems = await Problem.find(query);
+		const problems = await Problem.find(query).limit(limit).skip((page - 1) * limit);
+		const totalDocuments = await Problem.countDocuments(query);
+		const hasNextPage = (page * limit) < totalDocuments;
+
 		const updatedProblems = problems.map(async (problem) => {
 			// Check if there's a submission for the problem and user
 			problem = problem.toObject();
@@ -55,6 +68,7 @@ const getAllProblems = async (req, res) => {
 			status: "ok",
 			results: finalProblems.length,
 			data: finalProblems,
+			hasNextPage
 		});
 	} catch (err) {
 		console.log(err)
@@ -309,4 +323,4 @@ const getPendingProblemById = async (req, res) => {
 	return res.status(200).json({ status: "ok", data: problem });
 };
 
-export { getAllProblems, createProblem, createPendingProblem, getProblemById, getPendingProblem, declineProblem, getPendingProblemById };
+export { getProblems, createProblem, createPendingProblem, getProblemById, getPendingProblem, declineProblem, getPendingProblemById };

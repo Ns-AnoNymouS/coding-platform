@@ -37,12 +37,17 @@
 import React from 'react';
 import { TableRow, TableCell, Button } from '@mui/material';
 
-const TestCaseRowComponent = ({ serialNumber, onApprove, onDecline }) => {
+const TestCaseRowComponent = ({ problemNumber, problemTitle, onApprove, onDecline }) => {
   return (
     <TableRow>
       <TableCell>
         <Button onClick={onApprove} style={{ color: 'white' }}>
-          {serialNumber}
+          {problemNumber}
+        </Button>
+      </TableCell>
+      <TableCell>
+        <Button onClick={onApprove} style={{ color: 'white' }}>
+          {problemTitle}
         </Button>
       </TableCell>
       <TableCell>
