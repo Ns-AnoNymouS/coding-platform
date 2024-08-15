@@ -27,7 +27,7 @@ const verifyToken = (req, res, next) => {
 
     // If the Authorization header is missing, send a 403 response
     if (!authHeader) {
-        return res.status(403).jsin({message: 'Token is required'});
+        return res.status(403).json({message: 'Token is required'});
     }
     const token = req.headers['authorization'].split(' ')[1];
     if (!token) {

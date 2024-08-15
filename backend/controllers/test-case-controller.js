@@ -54,7 +54,7 @@ const addPendingTestCase = async (req, res) => {
             return;
         }
 
-        const updatedTestCase = await PendingTestCase({ problemNumber, givenInput, correctOutput });
+        const updatedTestCase = await PendingTestCase({ problemNumber, givenInput, correctOutput, title: problemData.title });
         await updatedTestCase.save()
 
         if (updatedTestCase) {
@@ -73,22 +73,22 @@ const addPendingTestCase = async (req, res) => {
 
 const addTestCase = async (req, res) => {
     try {
-        const { problemNumber, givenInput, correctOutput } = req.body;
-        const problemData = await Problem.findOne({ problemNumber })
-        if (!problemData) {
+        const { testcaseID } = req.body;
+        const testCase = await PendingTestCase.findById(testcaseID)
+        if (!testCase) {
             res.status(404).json({
                 status: 'unsucessful',
-                message: `Problem Number not found`,
+                message: `TestCase ID not found`,
             });
             return;
         }
 
         const updatedTestCase = await TestCase.findOneAndUpdate(
-            { _id: problemData.testCaseId }, // Filter: find by _id
+            { _id: testCase.testCaseId }, // Filter: find by _id
             {
                 $push: {
-                    givenInput: givenInput,
-                    correctOutput: correctOutput,
+                    givenInput: testCase.givenInput,
+                    correctOutput: testCase.correctOutput,
                 },
             },
             {
@@ -96,10 +96,10 @@ const addTestCase = async (req, res) => {
                 runValidators: true, // Run schema validations
             }
         );
-        await updatedTestCase.save()
-        
+
+
         try {
-            await PendingTestCase.deleteOne({ problemNumber, givenInput, correctOutput });
+            await PendingTestCase.deleteOne({ _id: testcaseID });
         } catch { }
 
         if (updatedTestCase) {
