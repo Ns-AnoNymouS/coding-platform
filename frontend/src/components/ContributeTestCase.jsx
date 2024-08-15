@@ -35,7 +35,7 @@ const ContributeTestCase = () => {
         correctOutput: data.output,
       }
       const response = await axios.post(
-        "http://localhost:6969/add-test-case",
+        "http://localhost:6969/add-pending-test-case",
         formattedData,
         {
           headers: {
@@ -48,7 +48,7 @@ const ContributeTestCase = () => {
       console.log(formattedData);
 
       if (response.data.status === "ok") {
-        alert("Test cases added successfully");
+        alert("Test cases Submitted for verification");
       } else {
         alert(response.data.message);
       }

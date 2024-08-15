@@ -9,7 +9,7 @@ import {
 
 const router = express.Router();
 
-router.post("/add-test-case", addTestCase);
+router.post("/add-test-case", verifyToken, addTestCase);
 router.post("/edit-testcase", verifyToken, adminOnly, editTestCase);
 router.get("/get-pending-testcases", verifyToken, adminOnly, getPendingTestCase);
 router.get("/pending-testcases/:testcaseID", verifyToken, adminOnly, getPendingTestCase);

@@ -53,6 +53,35 @@ const addPendingTestCase = async (req, res) => {
             });
             return;
         }
+        
+        const checkTestCase = await PendingTestCase.findOne({ problemNumber, givenInput, correctOutput })
+        if (checkTestCase) {
+            res.status(409).json({
+                status: 'unsucessful',
+                message: `Testcase Already submitted for verification`,
+            });
+            return;
+        }
+
+        const testCase = await TestCase.findOne({_id: problemData.testCaseId});
+        if (!testCase) {
+            res.status(500).json({
+                status: 'unsucessful',
+                message: `Failed to add the testCase`,
+            });
+            return;
+        }
+
+        const index = testCase.givenInput.indexOf(givenInput)
+        if (index != 1){
+            if (testCase.correctOutput[index] == correctOutput){
+                res.status(409).json({
+                    status: 'unsucessful',
+                    message: `Duplicate Test case`,
+                });
+                return;
+            }
+        }
 
         const updatedTestCase = await PendingTestCase({ problemNumber, givenInput, correctOutput, title: problemData.title });
         await updatedTestCase.save()
@@ -60,7 +89,7 @@ const addPendingTestCase = async (req, res) => {
         if (updatedTestCase) {
             res.status(200).json({
                 status: 'ok',
-                message: `Test case successfully submitted for verification: ${updatedTestCase}`,
+                message: `Test case successfully submitted for verification.`,
             });
         }
     } catch (err) {
@@ -74,21 +103,50 @@ const addPendingTestCase = async (req, res) => {
 const addTestCase = async (req, res) => {
     try {
         const { testcaseID } = req.body;
-        const testCase = await PendingTestCase.findById(testcaseID)
-        if (!testCase) {
+        const pendingTestCase = await PendingTestCase.findById(testcaseID)
+        if (!pendingTestCase) {
             res.status(404).json({
                 status: 'unsucessful',
                 message: `TestCase ID not found`,
             });
             return;
         }
+        
+        const problem = await Problem.findOne({problemNumber: pendingTestCase.problemNumber})
+        if (!problem) {
+            res.status(404).json({
+                status: 'unsucessful',
+                message: `problem not found`,
+            });
+            return;
+        }
+        
+        const testCase = await TestCase.findOne({_id: problem.testCaseId});
+        if (!testCase) {
+            res.status(404).json({
+                status: 'unsucessful',
+                message: `Test case not found with ID: ${problem.testCaseId}`,
+            });
+            return;
+        }
 
-        const updatedTestCase = await TestCase.findOneAndUpdate(
-            { _id: testCase.testCaseId }, // Filter: find by _id
+        const index = testCase.givenInput.indexOf(pendingTestCase.givenInput)
+        if (index != 1){
+            if (testCase.correctOutput[index] == pendingTestCase.correctOutput){
+                res.status(409).json({
+                    status: 'unsucessful',
+                    message: `Duplicate Test case`,
+                });
+                return;
+            }
+        }
+
+        const updatedTestCase = await TestCase.updateOne(
+            { _id: problem.testCaseId }, // Filter: find by _id
             {
                 $push: {
-                    givenInput: testCase.givenInput,
-                    correctOutput: testCase.correctOutput,
+                    givenInput: pendingTestCase.givenInput,
+                    correctOutput: pendingTestCase.correctOutput,
                 },
             },
             {
@@ -105,12 +163,7 @@ const addTestCase = async (req, res) => {
         if (updatedTestCase) {
             res.status(200).json({
                 status: 'ok',
-                message: `Test case updated successfully: ${updatedTestCase}`,
-            });
-        } else {
-            res.status(200).json({
-                status: 'ok',
-                message: `Test case not found with ID: ${problemData.testCaseId}`,
+                message: `Test case added successfully`,
             });
         }
     } catch (err) {
