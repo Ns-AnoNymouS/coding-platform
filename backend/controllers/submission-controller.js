@@ -179,10 +179,12 @@ const submitCode = async (req, res) => {
                     verdict = "ERROR";
                 }
 
-                const newSubmission = new Submission(
-                    { user: user_id, problem: problemNumber, code: code, language: language, verdict: verdict }
-                );
-                await newSubmission.save();
+                if (verdict != "ERROR") {
+                    const newSubmission = new Submission(
+                        { user: user_id, problem: problemNumber, code: code, language: language, verdict: verdict }
+                    );
+                    await newSubmission.save();
+                }
                 return res.status(400).json({ ...response, passed: `${index}/${testCases.length}`, input, expectedOutput })
             }
         }
