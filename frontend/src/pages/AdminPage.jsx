@@ -7,6 +7,7 @@ import TestCaseTable from "../components/Table/TestCaseTable";
 const AdminPage = () => {
   const [problemsData, setProblemsData] = useState(null);
   const [testCasesData, setTestCasesData] = useState(null);
+  const [refreshFlag, setRefreshFlag] = useState(false); // State to trigger refresh
 
   useEffect(() => {
     const fetchProblems = async () => {
@@ -34,11 +35,10 @@ const AdminPage = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-            validateStatus: (status) => status >= 200 && status < 500, // Ensures that status codes from 200 to 499 are considered valid
+            validateStatus: (status) => status >= 200 && status < 500,
           }
         );
 
-        // Check for successful response
         if (response.status === 200) {
           console.log("Test Cases:", response.data.data);
           setTestCasesData(response.data.data);
@@ -53,10 +53,15 @@ const AdminPage = () => {
         console.error("Error fetching test cases:", error.message || error);
       }
     };
-    console.log(localStorage.getItem("token"));
+
     fetchProblems();
     fetchTestCases();
-  }, []);
+  }, [refreshFlag]); // Re-fetch data when refreshFlag changes
+
+  // Function to trigger a refresh
+  const triggerRefresh = () => {
+    setRefreshFlag((prev) => !prev); // Toggle the refreshFlag state
+  };
 
   return (
     <>
@@ -71,7 +76,7 @@ const AdminPage = () => {
         <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>
           Problems Table
         </h1>
-        {problemsData ? (
+        {(problemsData && problemsData.length > 0) ? (
           <DataTable rows={problemsData} />
         ) : (
           <Typography>No Problems Data To Display</Typography>
@@ -88,8 +93,11 @@ const AdminPage = () => {
         <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>
           Test Cases Table
         </h1>
-        {testCasesData ? (
-          <TestCaseTable testCases={testCasesData} />
+        {(testCasesData && testCasesData.length > 0) ? (
+          <TestCaseTable
+            testCases={testCasesData}
+            onRefresh={triggerRefresh} // Pass the refresh function as a prop
+          />
         ) : (
           <Typography>No Test Cases Data To Display</Typography>
         )}
