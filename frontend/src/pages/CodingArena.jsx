@@ -390,7 +390,27 @@ const CodingArena = () => {
             color: "white",
             "&:hover": {
               cursor: "pointer",
-              color: "blue",
+              color: "black",
+            },
+          }}
+          variant="text"
+          // onClick={}
+        >
+          Save
+        </Button>
+        <Button
+          sx={{
+            ...customStyles.control,
+            width: "auto",
+            maxWidth: "none",
+            padding: "6px 12px",
+            marginRight: 1,
+            border: "none",
+            backgroundColor: "black",
+            color: "white",
+            "&:hover": {
+              cursor: "pointer",
+              color: "black",
             },
           }}
           variant="text"
@@ -410,7 +430,7 @@ const CodingArena = () => {
             color: "white",
             "&:hover": {
               cursor: "pointer",
-              color: "blue",
+              color: "black",
             },
           }}
           variant="text"
