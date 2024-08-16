@@ -17,7 +17,9 @@ const getProblems = async (req, res) => {
 		if (req.user && req.user.user) {
 			const user = req.user.user._id;
 			const userObj = await User.findById(user);
-			solved = userObj.solved;
+			if (userObj.solved){
+				solved = userObj.solved;
+			}
 		}
 
 		let query = {};

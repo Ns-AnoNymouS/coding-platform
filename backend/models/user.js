@@ -33,6 +33,9 @@ const Schema = new mongoose.Schema({
 	solved: {
 		type: Object,
 	},
+	savedCode: {
+		type: Object,
+	}
 });
 
 const User = mongoose.model('User', Schema);
