@@ -5,9 +5,9 @@ import { languageOptions } from "../constants/languageOptions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useKeyPress from "../hooks/useKeyPress";
-import CodeEditorWindow from "../components/codingPlayground/CodeEditorWindow";
+import CodeEditorWindow from "../components/Editor/CodeEditorWindow";
 import CustomInput from "../components/codingPlayground/CustomInput";
-import LanguagesDropdown from "../components/codingPlayground/LanguagesDropdown";
+import LanguagesDropdown from "../components/Editor/LanguagesDropdown";
 import Navbar from "../components/Navbar";
 import OutputWindow from "../components/codingPlayground/OutputWindow";
 
@@ -24,6 +24,36 @@ const CodingPlayGround = () => {
   const onSelectChange = (sl) => {
     setLanguage(sl);
   };
+
+  const handleSave = async () => {
+    setProcessing(true);
+  
+    const formData = {
+      language: language.value,
+      code: btoa(code),
+    };
+  
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:6969/save-code",
+        formData,
+        {
+          validateStatus: (status) => status >= 200 && status < 500,
+        }
+      );
+  
+      if (response.status === 200) {
+        showSuccessToast("Code saved successfully!");
+      } else {
+        showErrorToast("Failed to save code.");
+      }
+    } catch (error) {
+      showErrorToast("An error occurred while saving the code.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+  
 
   const handleCompile = useCallback(async () => {
     setProcessing(true);
@@ -133,7 +163,7 @@ const CodingPlayGround = () => {
             />
             <div className="flex flex-row">
 			<button
-                // onClick={handleCompile}
+                onClick={handleSave}
                 disabled={!code || processing}
                 className={classnames(
                   "mt-4 border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0 text-black",
