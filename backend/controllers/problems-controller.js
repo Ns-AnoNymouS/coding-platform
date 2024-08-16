@@ -17,7 +17,7 @@ const getProblems = async (req, res) => {
 		if (req.user && req.user.user) {
 			const user = req.user.user._id;
 			const userObj = await User.findById(user);
-			if (userObj.solved){
+			if (userObj.solved) {
 				solved = userObj.solved;
 			}
 		}
@@ -40,6 +40,15 @@ const getProblems = async (req, res) => {
 		const totalDocuments = await Problem.countDocuments(query);
 		const hasNextPage = (page * limit) < totalDocuments;
 
+		const filterSolvedByDifficulty = (difficulty) => {
+			return Object.fromEntries(
+				Object.entries(solved).filter(([_, value]) => value === difficulty)
+			);
+		};
+
+		const easySolved = filterSolvedByDifficulty("easy");
+		const mediumSolved = filterSolvedByDifficulty("medium");
+		const hardSolved = filterSolvedByDifficulty("hard");
 
 		const updatedProblems = problems.map(async (problem) => {
 			// Check if there's a submission for the problem and user
@@ -66,6 +75,11 @@ const getProblems = async (req, res) => {
 			status: "ok",
 			results: finalProblems.length,
 			data: finalProblems,
+			totalDocuments,
+			solved: Object.keys(solved).length,
+			easySolved: Object.keys(easySolved).length,
+			mediumSolved: Object.keys(mediumSolved).length,
+			hardSolved: Object.keys(hardSolved).length,
 			hasNextPage
 		});
 	} catch (err) {

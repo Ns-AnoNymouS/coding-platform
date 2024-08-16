@@ -53,7 +53,7 @@ const addPendingTestCase = async (req, res) => {
             });
             return;
         }
-        
+
         const checkTestCase = await PendingTestCase.findOne({ problemNumber, givenInput, correctOutput })
         if (checkTestCase) {
             res.status(409).json({
@@ -63,7 +63,7 @@ const addPendingTestCase = async (req, res) => {
             return;
         }
 
-        const testCase = await TestCase.findOne({_id: problemData.testCaseId});
+        const testCase = await TestCase.findOne({ _id: problemData.testCaseId });
         if (!testCase) {
             res.status(500).json({
                 status: 'unsucessful',
@@ -73,8 +73,8 @@ const addPendingTestCase = async (req, res) => {
         }
 
         const index = testCase.givenInput.indexOf(givenInput)
-        if (index != 1){
-            if (testCase.correctOutput[index] == correctOutput){
+        if (index != 1) {
+            if (testCase.correctOutput[index] == correctOutput) {
                 res.status(409).json({
                     status: 'unsucessful',
                     message: `Duplicate Test case`,
@@ -111,8 +111,8 @@ const addTestCase = async (req, res) => {
             });
             return;
         }
-        
-        const problem = await Problem.findOne({problemNumber: pendingTestCase.problemNumber})
+
+        const problem = await Problem.findOne({ problemNumber: pendingTestCase.problemNumber })
         if (!problem) {
             res.status(404).json({
                 status: 'unsucessful',
@@ -120,8 +120,8 @@ const addTestCase = async (req, res) => {
             });
             return;
         }
-        
-        const testCase = await TestCase.findOne({_id: problem.testCaseId});
+
+        const testCase = await TestCase.findOne({ _id: problem.testCaseId });
         if (!testCase) {
             res.status(404).json({
                 status: 'unsucessful',
@@ -131,8 +131,8 @@ const addTestCase = async (req, res) => {
         }
 
         const index = testCase.givenInput.indexOf(pendingTestCase.givenInput)
-        if (index != 1){
-            if (testCase.correctOutput[index] == pendingTestCase.correctOutput){
+        if (index != 1) {
+            if (testCase.correctOutput[index] == pendingTestCase.correctOutput) {
                 res.status(409).json({
                     status: 'unsucessful',
                     message: `Duplicate Test case`,
@@ -220,4 +220,30 @@ const editTestCase = async (req, res) => {
     }
 }
 
-export { addTestCase, editTestCase, getPendingTestCase, addPendingTestCase, getPendingTestCaseById };
+const declineTestCase = async (req, res) => {
+    try {
+		let { testcaseID } = req.body;
+
+		const pendingTestCase = await PendingTestCase.findById(testcaseID);
+		if (!pendingTestCase) {
+			return res.status(400).json({
+				status: "unsuccessful",
+				message: "Pending Test ID doesnt exists",
+			});
+		}
+
+		await PendingTestCase.deleteOne({ _id: testcaseID });
+		res.status(201).json({
+			status: "ok",
+			message: "Declined Sucessfully",
+		});
+	} catch (err) {
+		res.status(500).json({
+			status: "unsuccessful",
+			message: "Internal Server Error",
+			error: err.message,
+		});
+	}
+
+}
+export { addTestCase, editTestCase, getPendingTestCase, addPendingTestCase, getPendingTestCaseById, declineTestCase };

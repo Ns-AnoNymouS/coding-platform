@@ -200,10 +200,10 @@ const submitCode = async (req, res) => {
 
         await updateSolvedProblems(user_id, problemData)
 
-        res.status(200).json({ status: "passed", message: "All testcases passed.", passed: `${testCases.length}/${testCases.length}` })
+        res.status(200).json({ status: "Passed", message: "All testcases passed.", passed: `${testCases.length}/${testCases.length}` })
     } catch (err) {
         console.error(err);
-        res.status(500).json({ status: "failed", message: "Internal Server Error", passed: `0/0` })
+        res.status(500).json({ status: "Failed", message: "Internal Server Error", passed: `0/0` })
     }
 };
 
