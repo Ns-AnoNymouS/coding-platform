@@ -4,6 +4,7 @@ import { promises as fs } from 'fs';
 import util from 'util';
 import { v4 as uuidv4 } from 'uuid';
 import Submission from "../models/submission-model.js"
+import SaveCode from "../models/save-code-model.js"
 import TestCase from "../models/testcase-model.js"
 import Problem from "../models/problem-model.js"
 import User from "../models/user.js"
@@ -59,7 +60,6 @@ const _runCode = async (language, code, input, expectedOutput) => {
         if (expectedOutput) {
             passed = stdout.trim() === expectedOutput.trim();
         }
-
         return {
             status: passed ? 'Passed' : 'Failed',
             output: stdout.trim(),
@@ -161,6 +161,18 @@ const submitCode = async (req, res) => {
             });
         }
 
+        await SaveCode.findOneAndUpdate(
+            { user: user_id, problem: problemNumber, language: language },
+            {
+                code: code,
+                savedAt: Date.now()  // Update the savedAt field with the current date and time
+            },
+            {
+                new: true,
+                upsert: true,
+            }
+        );
+
         const testCases = testCaseData.givenInput.map((input, index) => ({
             input,
             expectedOutput: testCaseData.correctOutput[index]
@@ -210,9 +222,22 @@ const submitCode = async (req, res) => {
 const runCode = async (req, res) => {
     try {
 
-        let { language, code, input, expectedOutput } = req.body;
+        let { language, code, input, expectedOutput, problemNumber } = req.body;
         code = atob(code);
         input = atob(input)
+        if (req.user && req.user.user && problemNumber) {
+            await SaveCode.findOneAndUpdate(
+                { user: req.user.user._id, problem: problemNumber, language: language },
+                {
+                    code: code,
+                    savedAt: Date.now()  // Update the savedAt field with the current date and time
+                },
+                {
+                    new: true,
+                    upsert: true,
+                }
+            );
+        }
 
         const response = await _runCode(language, code, input, expectedOutput);
         if (response.status == "failed") {

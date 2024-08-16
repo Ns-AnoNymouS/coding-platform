@@ -18,8 +18,8 @@ router.get("/get-pending-problem", verifyToken, adminOnly, getPendingProblem);
 router.post("/decline-pending-problem", declineProblem);
 
 router.post("/submit-code", verifyToken, submitCode);
-router.post("/run-arena-code", runCode);
-router.post("/run-playground-code", runCode);
+router.post("/run-arena-code", checkToken, runCode);
+router.post("/run-playground-code", checkToken, runCode);
 
 router.get("/problem/:problemId", getProblemById);
 router.get("/pending-problem/:problemId", verifyToken, adminOnly, getPendingProblemById);

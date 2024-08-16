@@ -67,7 +67,7 @@ const getProblems = async (req, res) => {
 			// Return a new object with the updated status
 			return result;
 		});
-
+		
 		// Wait for all updates to complete
 		const finalProblems = await Promise.all(updatedProblems);
 
