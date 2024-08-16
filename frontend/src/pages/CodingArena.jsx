@@ -12,8 +12,8 @@ import LoginModal from "../components/LoginModal";
 import useLanguage from "../hooks/useLanguage";
 import Output from "../components/codingArena/Output";
 import CloseIcon from "@mui/icons-material/Close";
-import LanguagesDropdown from "../components/codingPlayground/LanguagesDropdown";
-import CodeEditorWindow from "../components/codingPlayground/CodeEditorWindow";
+import LanguagesDropdown from "../components/Editor/LanguagesDropdown";
+import CodeEditorWindow from "../components/Editor/CodeEditorWindow";
 import { languageOptions } from "../constants/languageOptions";
 
 const CodingArena = () => {
@@ -80,6 +80,31 @@ const CodingArena = () => {
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
+  };
+
+  const handleSave = async () => {
+    const formData = {
+      language: language.value,
+      code: btoa(code),
+    };
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:6969/save-code",
+        formData,
+        {
+          validateStatus: (status) => status >= 200 && status < 500,
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("Code saved successfully!");
+      } else {
+        console.error("Failed to save code.");
+      }
+    } catch (error) {
+      console.error("An error occurred while saving the code.");
+    }
   };
 
   const handleRunClick = async () => {
@@ -394,7 +419,7 @@ const CodingArena = () => {
             },
           }}
           variant="text"
-          // onClick={}
+          onClick={handleSave}
         >
           Save
         </Button>

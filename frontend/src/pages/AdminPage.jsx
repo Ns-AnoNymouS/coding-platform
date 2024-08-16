@@ -20,7 +20,6 @@ const AdminPage = () => {
             },
           }
         );
-        console.log("Problems:", response.data.response);
         setProblemsData(response.data.response);
       } catch (error) {
         console.error("Error fetching problems:", error);
@@ -40,7 +39,6 @@ const AdminPage = () => {
         );
 
         if (response.status === 200) {
-          console.log("Test Cases:", response.data.data);
           setTestCasesData(response.data.data);
         } else {
           console.error(
