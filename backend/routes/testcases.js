@@ -9,10 +9,10 @@ import {
 
 const router = express.Router();
 
-router.post("/add-test-case", verifyToken, addTestCase);
+router.post("/add-pending-test-case", verifyToken, addPendingTestCase);
+router.post("/add-test-case", verifyToken, adminOnly, addTestCase);
 router.post("/edit-testcase", verifyToken, adminOnly, editTestCase);
 router.get("/get-pending-testcases", verifyToken, adminOnly, getPendingTestCase);
-router.get("/pending-testcases/:testcaseID", verifyToken, adminOnly, getPendingTestCase);
-router.post("/add-pending-test-case", verifyToken, adminOnly, addPendingTestCase);
+router.get("/pending-testcases/:testcaseID", verifyToken, adminOnly, getPendingTestCaseById);
 
 export default router;

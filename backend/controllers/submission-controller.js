@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Submission from "../models/submission-model.js"
 import TestCase from "../models/testcase-model.js"
 import Problem from "../models/problem-model.js"
+import User from "../models/user.js"
 
 const execPromise = util.promisify(exec);
 
@@ -108,86 +109,117 @@ const _runCode = async (language, code, input, expectedOutput) => {
     }
 }
 
-const submitCode = async (req, res) => {
-    let { language, code, problemNumber } = req.body;
-    code = atob(code);
-
-    if (!req.user) {
-        return res.status(400).json({
-            status: "Failed",
-            message: "User login required.",
-            output: "User login required."
-        });
-    }
-
-    // Validate the input
-    if (!language || !code || !problemNumber) {
-        return res.status(400).json({
-            status: "Failed",
-            message: "All fields are required: language, code, problemNumber",
-            output: "All fields are required: language, code, problemNumber"
-        });
-    }
-
-    const problemData = await Problem.findOne({ problemNumber }).exec();
-    const testCaseId = problemData.testCaseId;
-
-    const testCaseData = await TestCase.findOne({ _id: testCaseId });
-    if (!testCaseData) {
-        return res.status(400).json({
-            status: "Failed",
-            message: "Test case not found",
-            output: "Test case not found"
-        });
-    }
-
-    const testCases = testCaseData.givenInput.map((input, index) => ({
-        input,
-        expectedOutput: testCaseData.correctOutput[index]
-    }));
-    for (const [index, { input, expectedOutput }] of testCases.entries()) {
-        const response = await _runCode(language, code, input, expectedOutput);
-        if (response.status == "Failed") {
-            let verdict = "";
-            if (response.message == "timeout") {
-                verdict = "TIMELIMITED ERROR";
-            } else if (response.message == "Memory limit exceeded") {
-                verdict = "MEMORY ERROR";
-            } else if (response.message == "wrong") {
-                verdict = "WRONG ANSWER";
-            } else {
-                verdict = "ERROR";
+const updateSolvedProblems = async (user_id, problemData) => {
+    try {
+        const user = await User.findById(user_id);
+        const problemNumber = problemData.problemNumber;
+        if (user) {
+            if (!user.solved || !user.solved.hasOwnProperty(problemNumber)) {
+                user.solved = {
+                    ...user.solved, [problemNumber]: problemData.difficulty
+                };
+                await user.save();
             }
-
-            const newSubmission = new Submission(
-                { user: req.user.user._id, problem: problemNumber, code: code, language: language, verdict: verdict }
-            );
-            await newSubmission.save();
-            return res.status(400).json({ ...response, passed: `${index}/${testCases.length}`, input, expectedOutput })
         }
+    } catch (err) {
+        console.error(err);
     }
-    const newSubmission = new Submission({
-        user: req.user.user._id,
-        problem: problemNumber,
-        code: code,
-        language: language,
-        verdict: "ACCEPTED"
-    });
+}
 
-    await newSubmission.save();
-    res.status(200).json({ status: "passed", message: "All testcases passed.", passed: `${testCases.length}/${testCases.length}` })
+const submitCode = async (req, res) => {
+    try {
+        const user_id = req.user.user._id;
+        let { language, code, problemNumber } = req.body;
+        code = atob(code);
+
+        if (!req.user) {
+            return res.status(400).json({
+                status: "Failed",
+                message: "User login required.",
+                output: "User login required."
+            });
+        }
+
+        // Validate the input
+        if (!language || !code || !problemNumber) {
+            return res.status(400).json({
+                status: "Failed",
+                message: "All fields are required: language, code, problemNumber",
+                output: "All fields are required: language, code, problemNumber"
+            });
+        }
+
+        const problemData = await Problem.findOne({ problemNumber }).exec();
+        const testCaseId = problemData.testCaseId;
+
+        const testCaseData = await TestCase.findOne({ _id: testCaseId });
+        if (!testCaseData) {
+            return res.status(400).json({
+                status: "Failed",
+                message: "Test case not found",
+                output: "Test case not found"
+            });
+        }
+
+        const testCases = testCaseData.givenInput.map((input, index) => ({
+            input,
+            expectedOutput: testCaseData.correctOutput[index]
+        }));
+        for (const [index, { input, expectedOutput }] of testCases.entries()) {
+            const response = await _runCode(language, code, input, expectedOutput);
+            if (response.status == "Failed") {
+                let verdict = "";
+                if (response.message == "timeout") {
+                    verdict = "TIMELIMITED ERROR";
+                } else if (response.message == "Memory limit exceeded") {
+                    verdict = "MEMORY ERROR";
+                } else if (response.message == "wrong") {
+                    verdict = "WRONG ANSWER";
+                } else {
+                    verdict = "ERROR";
+                }
+
+                const newSubmission = new Submission(
+                    { user: user_id, problem: problemNumber, code: code, language: language, verdict: verdict }
+                );
+                await newSubmission.save();
+                return res.status(400).json({ ...response, passed: `${index}/${testCases.length}`, input, expectedOutput })
+            }
+        }
+
+        const newSubmission = new Submission({
+            user: user_id,
+            problem: problemNumber,
+            code: code,
+            language: language,
+            verdict: "ACCEPTED"
+        });
+        await newSubmission.save();
+
+        await updateSolvedProblems(user_id, problemData)
+
+        res.status(200).json({ status: "passed", message: "All testcases passed.", passed: `${testCases.length}/${testCases.length}` })
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: "failed", message: "Internal Server Error", passed: `0/0` })
+    }
 };
 
 const runCode = async (req, res) => {
-    let { language, code, input, expectedOutput } = req.body;
-    code = atob(code);
-    input = atob(input)
+    try {
 
-    const response = await _runCode(language, code, input, expectedOutput);
-    if (response.status == "failed") {
-        return res.status(400).json(response)
+        let { language, code, input, expectedOutput } = req.body;
+        code = atob(code);
+        input = atob(input)
+
+        const response = await _runCode(language, code, input, expectedOutput);
+        if (response.status == "failed") {
+            return res.status(400).json(response)
+        }
+        res.status(200).json(response)
+    } catch (err) {
+        console.error(err);
     }
-    res.status(200).json(response)
 };
 
 const getDockerImageName = (language) => {
