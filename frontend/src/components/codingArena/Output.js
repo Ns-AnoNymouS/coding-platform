@@ -36,6 +36,18 @@ const Output = ({ results = [], onClose }) => {
           value={currentTab}
           onChange={handleTabChange}
           aria-label="test case tabs"
+          sx={{
+            ".MuiTab-root": {
+              color: "white", 
+              "&.Mui-selected": {
+                color: "gray",
+                fontWeight: "bold", 
+              },
+            },
+            ".MuiTabs-indicator": {
+              backgroundColor: "gray", 
+            },
+          }}
         >
           {validResults.map((_, index) => (
             <Tab
