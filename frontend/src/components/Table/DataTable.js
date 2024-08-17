@@ -1,33 +1,56 @@
-import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import React, { useState } from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert } from '@mui/material';
 import TableRowComponent from './TableRow';
 import axios from 'axios';
 
 const DataTable = ({ rows }) => {
-  const Approve = async (problemId) => {
-    const response = await axios.post(
-      "http://localhost:6969/create-problem", {problemId},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    alert(response.data.message);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
-  const Decline = async(problemId) =>{
-    console.log(problemId)
-    const response = await axios.post(
-      "http://localhost:6969/decline-pending-problem", {problemId},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    alert(response.data.message);
-  }
+  const Approve = async (problemId) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:6969/create-problem",
+        { problemId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setSnackbarMessage(response.data.message);
+      setSnackbarSeverity("success");
+    } catch (error) {
+      setSnackbarMessage("An error occurred while approving the problem.");
+      setSnackbarSeverity("error");
+    }
+    setSnackbarOpen(true);
+  };
+
+  const Decline = async (problemId) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:6969/decline-pending-problem",
+        { problemId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setSnackbarMessage(response.data.message);
+      setSnackbarSeverity("success");
+    } catch (error) {
+      setSnackbarMessage("An error occurred while declining the problem.");
+      setSnackbarSeverity("error");
+    }
+    setSnackbarOpen(true);
+  };
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -61,6 +84,22 @@ const DataTable = ({ rows }) => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ marginTop: 8 }} // Adjust this value to move the Snackbar down
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
