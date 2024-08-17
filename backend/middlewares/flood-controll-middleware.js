@@ -31,4 +31,4 @@ const floodControlMiddleware = (req, res, next) => {
     next();
 };
 
-export { floodControlMiddleware };
+export { floodControlMiddleware }
