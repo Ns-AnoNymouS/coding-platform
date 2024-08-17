@@ -17,13 +17,33 @@ const CodingPlayGround = () => {
   const [outputDetails, setOutputDetails] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [language, setLanguage] = useState(languageOptions[0]);
-
-  const enterPress = useKeyPress("Enter");
-  const ctrlPress = useKeyPress("Control");
+  const [savedCode, setSavedCode] = useState("");
 
   const onSelectChange = (sl) => {
     setLanguage(sl);
   };
+
+  const fetchCode = async (selectedLanguage) => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:6969/get-saved-code?language=${selectedLanguage}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.data && response.data.code) {
+        setCode(response.data.code); 
+      } else {
+        setCode(""); // Clear the editor if no code is found
+      }
+    } catch (err) {
+      console.log(err);
+      setCode(""); // Clear the editor on error as well
+    }
+  };
+
+  useEffect(() => {
+    fetchCode(language.value);
+  }, [language]);
 
   const handleSave = async () => {
     setProcessing(true);
@@ -38,6 +58,9 @@ const CodingPlayGround = () => {
         "http://127.0.0.1:6969/save-code",
         formData,
         {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          },
           validateStatus: (status) => status >= 200 && status < 500,
         }
       );
@@ -53,7 +76,6 @@ const CodingPlayGround = () => {
       setProcessing(false);
     }
   };
-  
 
   const handleCompile = useCallback(async () => {
     setProcessing(true);
@@ -75,7 +97,6 @@ const CodingPlayGround = () => {
         setOutputDetails(response.data);
         showSuccessToast("Compiled Successfully!");
       } else {
-        console.log(response.data);
         setOutputDetails(response.data);
         showErrorToast(response.data.status);
       }
@@ -85,12 +106,6 @@ const CodingPlayGround = () => {
       setProcessing(false);
     }
   }, [language.value, code, customInput]);
-
-  useEffect(() => {
-    if (enterPress && ctrlPress) {
-      handleCompile();
-    }
-  }, [enterPress, ctrlPress, handleCompile]);
 
   const onChange = (action, data) => {
     if (action === "code") {
