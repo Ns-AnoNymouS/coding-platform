@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Grid, Box, IconButton, Tabs, Tab, Button } from "@mui/material";
+import { Grid, Box, IconButton, Tabs, Tab, Button, CircularProgress } from "@mui/material";
 import ProblemStatement from "../components/codingArena/ProblemStatement";
 import Solutions from "../components/codingArena/Solutions";
 import Submissions from "../components/codingArena/Submissions";
@@ -33,6 +33,7 @@ const CodingArena = () => {
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState(languageOptions[0]); // Track language locally
   const [dataFetched, setDataFetched] = useState(false); // Track data fetch status
+  const [loading, isLoading] = useState(false);
 
   // Use the custom hook for language management
   const { changeLanguage } = useLanguage(languageOptions[0]);
@@ -65,10 +66,9 @@ const CodingArena = () => {
   }, [problem_id]);
 
   useEffect(() => {
+
     if (dataFetched) {
-      // Change language after data is fetched
       changeLanguage(language);
-      console.log("language: "+language.value);
     }
   }, [dataFetched, language, changeLanguage]);
 
@@ -86,6 +86,7 @@ const CodingArena = () => {
     const formData = {
       language: language.value,
       code: btoa(code),
+      problemNumber: problem_id,
     };
 
     try {
@@ -93,6 +94,9 @@ const CodingArena = () => {
         "http://127.0.0.1:6969/save-code",
         formData,
         {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          },
           validateStatus: (status) => status >= 200 && status < 500,
         }
       );
@@ -106,6 +110,28 @@ const CodingArena = () => {
       console.error("An error occurred while saving the code.");
     }
   };
+
+  const fetchCode = async (selectedLanguage) => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:6969/get-saved-code?language=${selectedLanguage}&problemNumber=${problem_id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.data && response.data.code) {
+        setCode(response.data.code); 
+      } else {
+        setCode(""); 
+      }
+    } catch (err) {
+      console.log(err);
+      setCode(""); 
+    }
+  };
+
+  useEffect(() => {
+    fetchCode(language.value);
+  }, [language]);
 
   const handleRunClick = async () => {
     if (isLoggedIn) {
@@ -122,7 +148,7 @@ const CodingArena = () => {
             input: btoa(examples[0].givenInput[i]),
             expectedOutput: examples[0].correctOutput[i],
           };
-
+          isLoading(true);
           const response = await axios.post(
             "http://localhost:6969/run-arena-code",
             data,
@@ -153,6 +179,8 @@ const CodingArena = () => {
           passed: "0/0",
         });
         setOutputVisible(true);
+      } finally{
+        isLoading(false);
       }
     } else {
       setShowModal(true);
@@ -168,6 +196,7 @@ const CodingArena = () => {
       };
 
       try {
+        isLoading(true);
         const response = await axios.post(
           "http://localhost:6969/submit-code",
           data,
@@ -210,6 +239,8 @@ const CodingArena = () => {
           passed: "0/0",
         });
         setSubmitVisible(true);
+      } finally{
+        isLoading(false);
       }
     } else {
       setShowModal(true);
@@ -404,65 +435,109 @@ const CodingArena = () => {
         }}
       >
         <Button
-          sx={{
-            ...customStyles.control,
-            width: "auto",
-            maxWidth: "none",
-            padding: "6px 12px",
-            marginRight: 1,
-            border: "none",
-            backgroundColor: "black",
-            color: "white",
-            "&:hover": {
-              cursor: "pointer",
-              color: "black",
-            },
-          }}
-          variant="text"
-          onClick={handleSave}
-        >
-          Save
-        </Button>
-        <Button
-          sx={{
-            ...customStyles.control,
-            width: "auto",
-            maxWidth: "none",
-            padding: "6px 12px",
-            marginRight: 1,
-            border: "none",
-            backgroundColor: "black",
-            color: "white",
-            "&:hover": {
-              cursor: "pointer",
-              color: "black",
-            },
-          }}
-          variant="text"
-          onClick={handleRunClick}
-        >
-          Run
-        </Button>
-        <Button
-          sx={{
-            ...customStyles.control,
-            width: "auto",
-            maxWidth: "none",
-            padding: "6px 12px",
-            marginRight: 1,
-            border: "none",
-            backgroundColor: "black",
-            color: "white",
-            "&:hover": {
-              cursor: "pointer",
-              color: "black",
-            },
-          }}
-          variant="text"
-          onClick={handleSubmitClick}
-        >
-          Submit
-        </Button>
+        sx={{
+          ...customStyles.control,
+          width: "auto",
+          maxWidth: "none",
+          padding: "6px 12px",
+          marginRight: 1,
+          border: "none",
+          backgroundColor: "black",
+          color: "white",
+          "&:hover": {
+            cursor: "pointer",
+            color: "black",
+          },
+          position: "relative", // For positioning the spinner
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        variant="text"
+        onClick={handleSave}
+        disabled={loading} // Disable button while loading
+      >
+        {loading && (
+          <CircularProgress
+            size={24}
+            sx={{
+              position: "absolute",
+              color: "white",
+            }}
+          />
+        )}
+        {!loading && "Save"}
+      </Button>
+
+      <Button
+        sx={{
+          ...customStyles.control,
+          width: "auto",
+          maxWidth: "none",
+          padding: "6px 12px",
+          marginRight: 1,
+          border: "none",
+          backgroundColor: "black",
+          color: "white",
+          "&:hover": {
+            cursor: "pointer",
+            color: "black",
+          },
+          position: "relative", // For positioning the spinner
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        variant="text"
+        onClick={handleRunClick}
+        disabled={loading} // Disable button while loading
+      >
+        {loading && (
+          <CircularProgress
+            size={24}
+            sx={{
+              position: "absolute",
+              color: "white",
+            }}
+          />
+        )}
+        {!loading && "Run"}
+      </Button>
+
+      <Button
+        sx={{
+          ...customStyles.control,
+          width: "auto",
+          maxWidth: "none",
+          padding: "6px 12px",
+          marginRight: 1,
+          border: "none",
+          backgroundColor: "black",
+          color: "white",
+          "&:hover": {
+            cursor: "pointer",
+            color: "black",
+          },
+          position: "relative", // For positioning the spinner
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        variant="text"
+        onClick={handleSubmitClick}
+        disabled={loading} // Disable button while loading
+      >
+        {loading && (
+          <CircularProgress
+            size={24}
+            sx={{
+              position: "absolute",
+              color: "white",
+            }}
+          />
+        )}
+        {!loading && "Submit"}
+      </Button>
       </Box>
       {!isLoggedIn && (
         <LoginModal open={showModal} onClose={() => setShowModal(false)} />
