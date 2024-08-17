@@ -33,7 +33,7 @@ const _runCode = async (language, code, input, expectedOutput) => {
         // Create a temp file to hold the code
         await fs.writeFile(fileName, code);
         await fs.writeFile(inputFile, input);
-        // executable = code
+        
         // Construct the Docker run command
         const command = `docker run --rm -e EXECUTABLE="${executable}" -v "${process.cwd()}:/usr/src/app" --memory="256m" --memory-swap="500m" --cpus="1.0" ${imageName}`;
 
