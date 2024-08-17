@@ -51,6 +51,26 @@ const QuestionDetailsModal = ({
     tags = []
   } = details;
 
+  const handleApprove = async () => {
+    try {
+      await onApprove(); // Assuming onApprove returns a promise
+      handleClose(); // Close the modal on success
+    } catch (error) {
+      console.error('Approval failed:', error);
+      // Optionally handle the error, e.g., by showing an error message
+    }
+  };
+
+  const handleDecline = async () => {
+    try {
+      await onDecline(); // Assuming onDecline returns a promise
+      handleClose(); // Close the modal on success
+    } catch (error) {
+      console.error('Decline failed:', error);
+      // Optionally handle the error, e.g., by showing an error message
+    }
+  };
+
   return (
     <Modal
       open={open}
@@ -85,10 +105,10 @@ const QuestionDetailsModal = ({
           </Typography>
         </Box>
         <Box sx={buttonContainerStyle}>
-          <Button variant="contained" color="success" onClick={onApprove} sx={{ mr: 1 }}>
+          <Button variant="contained" color="success" onClick={handleApprove} sx={{ mr: 1 }}>
             Approve
           </Button>
-          <Button variant="contained" color="error" onClick={onDecline}>
+          <Button variant="contained" color="error" onClick={handleDecline}>
             Decline
           </Button>
         </Box>

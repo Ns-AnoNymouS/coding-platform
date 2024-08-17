@@ -69,15 +69,25 @@ const ProblemsPage = () => {
   const token = params.get('token');
   const role = params.get('role');
 
-  console.log('Query Params:', params.toString());
-
   if (!localStorage.getItem('token') && token) {
+    console.log("Erripuka");
     localStorage.setItem('token', token);
     localStorage.setItem('role', role);
+  
+    // Debugging: log params before and after deletion
+    console.log('Before deletion:', params.toString());
+  
     params.delete("token");
     params.delete("role");
-    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  
+    console.log('After deletion:', params.toString());
+  
+    const newURL = `${location.pathname}`;
+    console.log('Navigating to:', newURL);
+  
+    navigate(newURL, { replace: true });
   }
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [difficultyFilter, setDifficultyFilter] = useState("All");
@@ -89,11 +99,12 @@ const ProblemsPage = () => {
   const [problems, setProblems] = useState([]);
 
 useEffect(()=>{
+  const token = localStorage.getItem("token");
   const getAllProblems = async () => {
     try {
       const response = await axios.get("http://localhost:6969/all-problems", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       setProblems(response.data.data);
@@ -102,7 +113,7 @@ useEffect(()=>{
     }
   };
   getAllProblems();
-}, []);
+}, [token]);
 
   const filteredProblems = problems.filter((problem) => {
     const problemDifficulty = problem.difficulty

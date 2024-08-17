@@ -16,7 +16,6 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
       const response = await axios.get(
         `http://localhost:6969/problem/${testCase.problemNumber}`
       );
-      console.log(response.data);
       setSelectedTestCase({
         ...response.data.data,
         testcaseID: testCase._id, // Make sure to pass the testcaseID
@@ -77,6 +76,7 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        position: "relative", // Ensure the container has relative positioning
       }}
     >
       <TableContainer
@@ -118,12 +118,8 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
           open={open}
           handleClose={handleCloseModal}
           details={selectedTestCase}
-          onApprove={() =>
-            handleApproveOrDecline(selectedTestCase.testcaseID, "add")
-          }
-          onDecline={() =>
-            handleApproveOrDecline(selectedTestCase.testcaseID, "decline")
-          }
+          onApprove={(testCaseId) => handleApproveOrDecline(testCaseId, "add")}
+          onDecline={(testCaseId) => handleApproveOrDecline(testCaseId, "decline")}
         />
       )}
 
@@ -131,6 +127,10 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Set the position to top-right
+        sx={{ 
+          marginTop: 8 // Adjust this value to move the Snackbar down
+        }}
       >
         <Alert
           onClose={handleSnackbarClose}
