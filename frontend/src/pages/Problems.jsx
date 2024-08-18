@@ -74,7 +74,7 @@ const ProblemsPage = () => {
   const token = params.get("token");
   const role = params.get("role");
 
-  if (!localStorage.getItem("token") && token) {
+  if (token) {
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
     navigate("/problems", { replace: true });
