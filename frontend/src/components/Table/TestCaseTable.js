@@ -118,8 +118,8 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
           open={open}
           handleClose={handleCloseModal}
           details={selectedTestCase}
-          onApprove={(testCaseId) => handleApproveOrDecline(testCaseId, "add")}
-          onDecline={(testCaseId) => handleApproveOrDecline(testCaseId, "decline")}
+          onApprove={() => handleApproveOrDecline(selectedTestCase.testcaseID, "add")}
+          onDecline={() => handleApproveOrDecline(selectedTestCase.testcaseID, "decline")}
         />
       )}
 
