@@ -64,7 +64,8 @@ const getContest = async (req, res) => {
         const updatedContest = contest.map(item => {
             return {
                 ...item._doc,  // Spread the original document's properties
-                isHost: item.host == userId // Add the isHost key
+                isHost: item.host == userId, // Add the isHost key
+                isRegistered: item.participants.includes(userId),
             };
         });
 
@@ -216,7 +217,7 @@ const getContestQuestions = async (req, res) => {
     }
 };
 
-const getContestQuestionsById = async (req, res) => {
+const getContestQuestionById = async (req, res) => {
     try {
         const { questionId } = req.query;
         const user = req.user.user || {};
@@ -307,4 +308,4 @@ const registerContest = async (req, res) => {
     }
 }
 
-export { getContest, getContestQuestions, getContestQuestionsById, createContest, registerContest, createContestQuestion };
+export { getContest, getContestQuestions, getContestQuestionById, createContest, registerContest, createContestQuestion };
