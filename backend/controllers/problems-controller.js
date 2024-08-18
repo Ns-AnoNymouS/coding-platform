@@ -1,6 +1,5 @@
 import PendingProblem from "../models/pending-problem-model.js";
 import Problem from "../models/problem-model.js";
-import Submission from "../models/submission-model.js";
 import TestCase from "../models/testcase-model.js";
 import User from "../models/user.js";
 
@@ -36,7 +35,9 @@ const getProblems = async (req, res) => {
 			query.problemNumber = (status == "Solved") ? { $in: Object.keys(solved) } : { $nin: Object.keys(solved) };
 		}
 
-		const problems = await Problem.find(query).limit(limit).skip((page - 1) * limit);
+		const problems = await Problem.find(query, "problemNumber title description difficulty tags constrains")
+			.limit(limit)
+			.skip((page - 1) * limit);
 		const totalDocuments = await Problem.countDocuments(query);
 		const hasNextPage = (page * limit) < totalDocuments;
 
@@ -67,7 +68,7 @@ const getProblems = async (req, res) => {
 			// Return a new object with the updated status
 			return result;
 		});
-		
+
 		// Wait for all updates to complete
 		const finalProblems = await Promise.all(updatedProblems);
 
@@ -188,7 +189,7 @@ const createProblem = async (req, res) => {
 			description: pendingProblem.description,
 			examples: pendingProblem.examples,
 			difficulty: pendingProblem.difficulty,
-			constraints: pendingProblem.constrains,
+			constraints: pendingProblem.constraints,
 			tags: pendingProblem.tags,
 		});
 
