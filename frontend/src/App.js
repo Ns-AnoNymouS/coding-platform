@@ -15,6 +15,7 @@ import Landing from "./pages/Landing";
 import AdminPage from "./pages/AdminPage";
 import { useContext } from "react";
 import { AuthContext, AuthProvider } from "./AuthContext";
+import Page from "./pages/ContestPage";
 
 const darkTheme = createTheme({
   palette: {
@@ -53,6 +54,7 @@ function App() {
             />
             <Route path="/problems" element={<Problems />} />
             <Route path="/contest" element={<Contest />} />
+            <Route path="/contest/:id" element={<Page />} />
             <Route path="/contribute" element={<Contribute />} />
           </Route>
           <Route path="/problem/:problem_id" element={<CodingArena />} />
