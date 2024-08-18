@@ -361,11 +361,33 @@ const CodingArena = () => {
     }
   };
 
+  const handleSubmissions = async ()=>{
+    try {
+      const response = await axios.get("http://localhost:6969/get-submissions", {
+        params: { problemNumber: problem_id },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        validateStatus: (status) => status >= 200 && status < 500,
+      });
+
+      if (response.data.status === 'ok') {
+        setSubmissions(response.data.data);
+      } else {
+        console.error("Unexpected response status:", response.data);
+      }
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    }
+  }
+
+
   const renderContent = () => {
     switch (currentTab) {
       case 1:
         return <Solutions solutions={solutions} />;
       case 2:
+        handleSubmissions();
         return <Submissions submissions={submissions} />;
       case 0:
       default:
@@ -648,7 +670,7 @@ const CodingArena = () => {
             justifyContent: "center",
           }}
           variant="text"
-          onClick={handleSubmitClick}
+          onClick={() => {handleSubmitClick(); handleSubmissions()}}
           disabled={loading.run || loading.save || loading.submit}
         >
           Submit

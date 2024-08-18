@@ -1,44 +1,24 @@
 import React, { useState } from "react";
 import { Box, Typography, Paper, Divider, Modal, Button, IconButton } from "@mui/material";
-import { customStyles } from "../../constants/customStyles";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { customStyles } from "../../constants/customStyles";
 
-const sampleCode = `// Sample code snippet
-function binarySearch(arr, target) {
-  let left = 0;
-  let right = arr.length - 1;
-  
-  while (left <= right) {
-    const mid = Math.floor((left + right) / 2);
-    if (arr[mid] === target) {
-      return mid;
-    }
-    if (arr[mid] < target) {
-      left = mid + 1;
-    } else {
-      right = mid - 1;
-    }
-  }
-  
-  return -1;
-}`;
-
-const Submissions = ({ submissions = [] }) => {
+const Submissions = ({ submissions }) => {
   const [open, setOpen] = useState(false);
   const [currentCode, setCurrentCode] = useState("");
 
-  const parseSubmission = (submissionString) => {
-    const parts = submissionString.split(", ");
-    const submission = {};
-    parts.forEach((part) => {
-      const [key, value] = part.split(": ");
-      submission[key.trim()] = value.trim();
-    });
-    return submission;
+  // Updated function to parse JSON data
+  const parseSubmission = (submission) => {
+    return {
+      code: submission.code,
+      verdict: submission.verdict,
+      language: submission.language,
+      submittedAt: new Date(submission.submittedAt).toLocaleString(), // Format date
+    };
   };
 
   const handleOpen = (code) => {
-    setCurrentCode(code || sampleCode); 
+    setCurrentCode(code); 
     setOpen(true);
   };
 
@@ -50,9 +30,9 @@ const Submissions = ({ submissions = [] }) => {
 
   return (
     <Box sx={{ padding: 2 }}>
-      {submissions.length ? (
-        submissions.map((submissionString, index) => {
-          const submission = parseSubmission(submissionString);
+      {submissions.length > 0 ? (
+        submissions.map((submission, index) => {
+          const parsed = parseSubmission(submission);
           return (
             <Paper
               key={index}
@@ -66,15 +46,18 @@ const Submissions = ({ submissions = [] }) => {
             >
               <Box>
                 <Typography variant="h6" component="h2" gutterBottom>
-                  {submission.questionName}
+                  Submitted At: {parsed.submittedAt}
                 </Typography>
                 <Divider sx={{ marginBottom: 1 }} />
                 <Typography
                   variant="body2"
                   sx={{ cursor: "pointer", color: "blue" }}
-                  onClick={() => handleOpen(submission.code)}
+                  onClick={() => handleOpen(parsed.code)}
                 >
-                  {submission.isCorrect === "true" ? "Correct" : "Incorrect"}
+                  Verdict: {parsed.verdict}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Language: {parsed.language}
                 </Typography>
               </Box>
               <Box
@@ -87,12 +70,6 @@ const Submissions = ({ submissions = [] }) => {
                   borderLeft: "1px solid #ddd",
                 }}
               >
-                <Typography variant="body2">
-                  Memory Used: {submission.Memory || "N/A"}
-                </Typography>
-                <Typography variant="body2">
-                  Time Taken: {submission.Time || "N/A"}
-                </Typography>
               </Box>
             </Paper>
           );
