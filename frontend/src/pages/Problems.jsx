@@ -77,14 +77,7 @@ const ProblemsPage = () => {
   if (!localStorage.getItem("token") && token) {
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
-
-    params.delete("token");
-    params.delete("role");
-
-    const newURL = `${location.pathname}`;
-    console.log("Navigating to:", newURL);
-
-    navigate(newURL, { replace: true });
+    navigate("/problems", { replace: true });
   }
 
   const [searchQuery, setSearchQuery] = useState("");
