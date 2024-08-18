@@ -15,6 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import LanguagesDropdown from "../components/Editor/LanguagesDropdown";
 import CodeEditorWindow from "../components/Editor/CodeEditorWindow";
 import { languageOptions } from "../constants/languageOptions";
+import Input from "../components/codingArena/Input";
 
 const CodingArena = () => {
   const [problemData, setProblemData] = useState({});
@@ -38,6 +39,8 @@ const CodingArena = () => {
     run: false,
     submit: false,
   });
+  const [customInputVisible, setCustomInputVisible] = useState(false);
+  const [customInputValue, setCustomInputValue] = useState("");
 
   const { changeLanguage } = useLanguage(languageOptions[0]);
 
@@ -208,6 +211,76 @@ const CodingArena = () => {
     }
   };
 
+  const handleCustomInputClick = () => {
+    setCustomInputVisible(true);
+  };
+
+  const handleCustomInputClose = () => {
+    setCustomInputVisible(false);
+  };
+
+  const handleInputChange = (event) => {
+    setCustomInputValue(event.target.value);
+  };
+
+  const handleCustomInputTest = async () => {
+    if (isLoggedIn) {
+      const customInput = customInputValue; // Get the custom input value from your state or form
+
+      // Construct the data object for the request
+      const data = {
+        language: language.value,
+        code: btoa(code),
+        input: btoa(customInput), // Encode custom input
+        expectedOutput: "", // Assuming no expected output for custom input testing
+      };
+
+      setLoading({ run: true, submit: false, save: false }); // Start loading
+
+      try {
+        const response = await axios.post(
+          "http://localhost:6969/run-arena-code",
+          data,
+          {
+            validateStatus: (status) => status >= 200 && status < 500,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        // Handle the response
+        const result = {
+          input: customInput,
+          output: response.data.output,
+          expectedOutput: "", // No expected output
+          passed: response.data.passed,
+        };
+
+        setOutputData([result]); // Set the output data for custom input
+        setOutputVisible(true); // Show the output
+      } catch (error) {
+        console.error("Error running custom input:", error);
+        setOutputData({
+          input: [customInput],
+          output: ["Error occurred"],
+          expectedOutput: [""],
+          message: "An error occurred while running the custom input.",
+          passed: "0/1",
+        });
+        setOutputVisible(true); // Show the output with error message
+      } finally {
+        setLoading({
+          run: false,
+          submit: false,
+          save: false,
+        });
+      }
+    } else {
+      setShowModal(true); // Show login modal if not logged in
+    }
+  };
+
   const handleSubmitClick = async () => {
     if (isLoggedIn) {
       const data = {
@@ -350,24 +423,13 @@ const CodingArena = () => {
                   aria-label="Tabs for Problem, Solutions, and Submissions"
                   sx={{ marginBottom: 2 }}
                 >
-                  {/* <Tab
-                    label="Problem"
-                    sx={{
-                      bgcolor: currentTab === 0 ? "#8888" : "gray",
-                      color: currentTab === 0 ? "white" : "white",
-                      color: "white",
-                      "&:hover": {
-                        bgcolor: currentTab === 0 ? "#8899" : "darkgray",
-                      },
-                    }}
-                  /> */}
                   <Tab
                     label="Problem"
                     sx={{
                       bgcolor: "transparent",
                       color: "#888888",
                       "&:hover": {
-                        color: "#ffffff", 
+                        color: "#ffffff",
                       },
                       "&.Mui-selected": {
                         color: "#ffffff",
@@ -381,7 +443,7 @@ const CodingArena = () => {
                       bgcolor: "transparent",
                       color: "#888888",
                       "&:hover": {
-                        color: "#ffffff", 
+                        color: "#ffffff",
                       },
                       "&.Mui-selected": {
                         color: "#ffffff",
@@ -394,7 +456,7 @@ const CodingArena = () => {
                       bgcolor: "transparent",
                       color: "#888888",
                       "&:hover": {
-                        color: "#ffffff", 
+                        color: "#ffffff",
                       },
                       "&.Mui-selected": {
                         color: "#ffffff",
@@ -447,6 +509,15 @@ const CodingArena = () => {
                 </Box>
               )}
 
+              {customInputVisible && (
+                <Input
+                  open={customInputVisible}
+                  onChange={handleInputChange}
+                  onClose={handleCustomInputClose}
+                  onTest={handleCustomInputTest}
+                />
+              )}
+
               {submitVisible && (
                 <OutputModal
                   open={submitVisible}
@@ -462,8 +533,34 @@ const CodingArena = () => {
             <div className="px-4 py-2">
               <LanguagesDropdown onSelectChange={onSelectChange} />
             </div>
+            <div>
+              <Button
+                sx={{
+                  ...customStyles.control,
+                  width: "auto",
+                  maxHeight: "50px",
+                  maxWidth: "none",
+                  marginRight: 1,
+                  border: "none",
+                  backgroundColor: "white",
+                  color: "black",
+                  "&:hover": {
+                    cursor: "pointer",
+                    color: "white",
+                  },
+                  position: "absolute",
+                  right: "40px",
+                  top: "30px",
+                }}
+                variant="text"
+                onClick={handleSave}
+                disabled={loading.run || loading.save || loading.submit}
+              >
+                Save
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-col w-full h-full justify-start items-end">
+          <div>
             <CodeEditorWindow
               code={code}
               onChange={onChange}
@@ -500,16 +597,11 @@ const CodingArena = () => {
               cursor: "pointer",
               color: "black",
             },
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
           }}
           variant="text"
-          onClick={handleSave}
-          disabled={loading.run || loading.save || loading.submit}
+          onClick={handleCustomInputClick}
         >
-          Save
+          Custom Input
         </Button>
 
         <Button
