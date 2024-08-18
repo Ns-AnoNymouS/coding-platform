@@ -9,6 +9,7 @@ const Contest = () => {
   const [contests, setContests] = useState({ current: [], past: [] });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   const fetchContests = async () => {
     try {
       setLoading(true);
@@ -31,13 +32,13 @@ const Contest = () => {
 
       // Merge ongoing and upcoming contests into the current category
       const allContests = [
-        ...upcomingResponse.data,
-        ...ongoingResponse.data
+        ...upcomingResponse.data.data,
+        ...ongoingResponse.data.data
       ];
 
       setContests({
         current: allContests,
-        past: pastResponse.data
+        past: pastResponse.data.data
       });
 
     } catch (error) {
@@ -56,24 +57,24 @@ const Contest = () => {
   };
 
   const filteredCurrentContests = contests.current.filter((contest) =>
-    contest.name.toLowerCase().includes(searchTerm.toLowerCase())
+    contest.contestTitle.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredPastContests = contests.past.filter((contest) =>
-    contest.name.toLowerCase().includes(searchTerm.toLowerCase())
+    contest.contestTitle.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const currentContestColumns = [
-    { id: "id", label: "ID" },
-    { id: "name", label: "Contest Name" },
-    { id: "startTime", label: "Start Time", align: "right" },
-    { id: "endTime", label: "End Time", align: "right" },
+    { id: "contestNumber", label: "Contest Number" },
+    { id: "contestTitle", label: "Contest Title" },
+    { id: "start", label: "Start Time", align: "right" },
+    { id: "end", label: "End Time", align: "right" },
     { id: "register", label: "Register", align: "right" },
   ];
 
   const pastContestColumns = [
-    { id: "id", label: "ID" },
-    { id: "name", label: "Contest Name" },
+    { id: "contestNumber", label: "Contest Number" },
+    { id: "contestTitle", label: "Contest Title" },
     { id: "hostedDate", label: "Hosted Date", align: "right" },
     { id: "standings", label: "Standings", align: "right" },
   ];
@@ -96,7 +97,7 @@ const Contest = () => {
         <Button
           variant="contained"
           sx={{ backgroundColor: '#f5f5f5', color: '#000', marginLeft: 2 }}
-          onClick={()=>navigate('/create-contest')}
+          onClick={() => navigate('/create-contest')}
         >
           Add Contest
         </Button>
@@ -108,9 +109,11 @@ const Contest = () => {
       </Box>
       <ContestTable 
         columns={currentContestColumns} 
-        rows={contests.current.map(contest => ({
+        rows={filteredCurrentContests.map(contest => ({
           ...contest,
-          register: contest.registered ? "Registered" : "Register"
+          start: new Date(contest.schedule.start).toLocaleString(),
+          end: new Date(contest.schedule.end).toLocaleString(),
+          register: contest.isHost ? "Host" : "Register"
         }))} 
         titleAsLink={true} 
         registrationStatus={true} 
@@ -121,7 +124,11 @@ const Contest = () => {
       </Typography>
       <ContestTable 
         columns={pastContestColumns} 
-        rows={contests.past} 
+        rows={filteredPastContests.map(contest => ({
+          ...contest,
+          hostedDate: new Date(contest.schedule.start).toLocaleDateString(), // Adjust date format
+          standings: "View Standings" // Placeholder text
+        }))} 
         titleAsLink={true} 
       />
     </Container>
