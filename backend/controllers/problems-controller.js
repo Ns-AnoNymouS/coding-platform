@@ -32,7 +32,7 @@ const getProblems = async (req, res) => {
 			query.title = new RegExp(title, 'i');
 		}
 		if (status) {
-			query.problemNumber = (status == "solved") ? { $in: Object.keys(solved) } : { $nin: Object.keys(solved) };
+			query.problemNumber = (status == "Solved") ? { $in: Object.keys(solved) } : { $nin: Object.keys(solved) };
 		}
 
 		const problems = await Problem.find(query, "problemNumber title description difficulty tags constrains")
