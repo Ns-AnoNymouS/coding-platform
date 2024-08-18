@@ -50,24 +50,6 @@ const TestCaseModal = ({
     tags = [],
   } = details;
 
-  // const handleApprove = async () => {
-  //   try {
-  //     await onApprove(details.testCaseId);
-  //     handleClose(); // Close the modal on successful approval
-  //   } catch (error) {
-  //     console.error("Error approving test case:", error);
-  //   }
-  // };
-
-  // const handleDecline = async () => {
-  //   try {
-  //     await onDecline(details.testCaseId);
-  //     handleClose(); // Close the modal on successful decline
-  //   } catch (error) {
-  //     console.error("Error declining test case:", error);
-  //   }
-  // };
-
   return (
     <Modal
       open={open}

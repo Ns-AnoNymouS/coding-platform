@@ -2,7 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Box, TextField, Typography, Button, Autocomplete } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Typography,
+  Button,
+  Autocomplete,
+} from "@mui/material";
 import axios from "axios";
 
 const schema = yup
@@ -16,6 +22,7 @@ const schema = yup
 const ContributeTestCase = () => {
   const [problems, setProblems] = useState([]);
   const [selectedProblem, setSelectedProblem] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false); // State to manage loading
   const {
     control,
@@ -25,7 +32,7 @@ const ContributeTestCase = () => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      problemName: null,  // Initial value set to null
+      problemName: null, // Initial value set to null
       input: "",
       output: "",
     },
@@ -34,7 +41,10 @@ const ContributeTestCase = () => {
   useEffect(() => {
     const getAllProblems = async () => {
       try {
-        const response = await axios.get("http://localhost:6969/all-problems", {
+        const response = await axios.get("http://localhost:6969/problems", {
+          params: {
+            title: searchQuery,
+          },
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -45,7 +55,7 @@ const ContributeTestCase = () => {
       }
     };
     getAllProblems();
-  }, []);
+  }, [searchQuery]);
 
   const onSubmit = async (data) => {
     setLoading(true); // Set loading to true when submission starts
@@ -107,6 +117,9 @@ const ContributeTestCase = () => {
                 isOptionEqualToValue={(option, value) =>
                   option.title === value || value === ""
                 }
+                onInputChange={(_, newInputValue) => {
+                  setSearchQuery(newInputValue);
+                }}
                 onChange={(_, newValue) => {
                   field.onChange(newValue ? newValue.title : null);
                   setSelectedProblem(newValue);
