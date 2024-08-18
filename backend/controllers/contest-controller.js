@@ -97,7 +97,9 @@ const createContestQuestion = async (req, res) => {
         const userId = user._id;
 
         if (!contestId) {
-            return res.status(400).json({ message: "contest ID not found!" });
+            return res.status(400).json({
+                status: "unsuccessful", data: "contest ID not found!"
+            });
         }
 
         const contest = await Contest.findById(contestId);
@@ -121,7 +123,7 @@ const createContestQuestion = async (req, res) => {
             const fileContent = fs.readFileSync(req.file.path, 'utf-8');
             jsonData = JSON.parse(fileContent);
         } catch (parseError) {
-            res.status(400).send({ status: "unsucessful", message: 'Invalid JSON format', error: parseError.message });
+            res.status(400).send({ status: "unsucessful", data: 'Invalid JSON format', error: parseError.message });
             return;
         }
 
@@ -170,7 +172,7 @@ const createContestQuestion = async (req, res) => {
             if (req.file) {
                 fs.unlinkSync(req.file.path);
             }
-        } catch (err) {console.log(err) }
+        } catch (err) { console.log(err) }
     }
 }
 
@@ -197,9 +199,10 @@ const getContestQuestions = async (req, res) => {
             contestNumber: contest.contestNumber,
             schedule: contest.schedule,
             isHost: contest.host == userId,
+            isRegistered: contest.participants.includes(userId),
         };
 
-        if (contest.schedule.start < new Date()) {
+        if (response.isHost || contest.schedule.start < new Date()) {
             const questions = await ContestQuestions.find({ _id: { $in: contest.questionIds } }, "_id title points");
             response.questions = questions;
         }
@@ -209,7 +212,6 @@ const getContestQuestions = async (req, res) => {
             data: response,
         });
     } catch (err) {
-        console.log(err)
         res.status(500).json({
             status: "unsuccessful",
             message: err.message,

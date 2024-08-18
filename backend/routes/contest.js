@@ -28,6 +28,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router.get("/all-contest", checkToken, getContest);
+router.get("/get-contest-question", checkToken, getContestQuestions);
 router.post("/create-contest", verifyToken, createContest);
 router.post("/register-contest", verifyToken, registerContest);
 router.post("/create-contest-problem", upload.single('file'), verifyToken, createContestQuestion);
