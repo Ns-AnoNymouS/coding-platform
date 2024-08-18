@@ -19,6 +19,7 @@ const ContributeTestCase = () => {
   const {
     control,
     handleSubmit,
+    reset, // Access reset from useForm
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -67,6 +68,8 @@ const ContributeTestCase = () => {
 
       if (response.data.status === "ok") {
         alert("Test cases Submitted for verification");
+        reset(); // Reset the form fields after successful submission
+        setSelectedProblem(null); // Reset selected problem
       } else {
         alert(response.data.message);
       }
