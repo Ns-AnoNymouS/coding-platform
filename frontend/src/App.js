@@ -18,7 +18,7 @@ import { useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import Contest from "./pages/Contest";
 import AddContestQuestion from "./components/contest/AddContestQuestion";
-import { AuthContext, AuthProvider } from "./AuthContext";
+import {  AuthProvider } from "./AuthContext";
 import Page from "./pages/ContestPage";
 
 const darkTheme = createTheme({
@@ -57,13 +57,13 @@ function App() {
               }
             />
             <Route path="/problems" element={<Problems />} />
-            <Route path="/contest" element={<Contests />} />
+            <Route path="/contest" element={<Contest />} />
             <Route path="/contribute" element={<Contribute />} />
           </Route>
           <Route path="/problem/:problem_id" element={<CodingArena />} />
           <Route path="/playground" element={<CodingPlayGround />} />
           <Route path="/create-contest" element={<ContestForm />} />
-          <Route path="/contest/:contest-id" element={<Contest />} />
+          <Route path="/contest/:contest-id" element={<Page />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/contest/:contest-id/add" element={<AddContestQuestion />} />
