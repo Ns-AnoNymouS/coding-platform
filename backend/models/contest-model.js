@@ -22,6 +22,13 @@ const Schema = new mongoose.Schema(
                     required: [true, "A contest must have an end date"],
                 },
             },
+            validate: {
+                validator: function (v) {
+                    // Ensure that the start date is less than the end date
+                    return v.start < v.end;
+                },
+                message: "The start date must be earlier than the end date.",
+            },
         },
         questionIds: {
             type: [mongoose.Schema.ObjectId],
