@@ -18,7 +18,6 @@ import { useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import Contest from "./pages/Contest";
 import AddContestQuestion from "./components/contest/AddContestQuestion";
-import {  AuthProvider } from "./AuthContext";
 import Page from "./pages/ContestPage";
 
 const darkTheme = createTheme({
