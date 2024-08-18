@@ -36,6 +36,7 @@ const ContributeQuestion = () => {
   const {
     control,
     handleSubmit,
+    reset, // This function will reset the form fields
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -58,12 +59,13 @@ const ContributeQuestion = () => {
       givenInput: data.input,
       correctOutput: data.output,
       title: data.title,
-      tags: data.tags
-    }
+      tags: data.tags,
+    };
+
     try {
       const response = await axios.post(
         "http://localhost:6969/create-pending-problem",
-        format, 
+        format,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -71,13 +73,13 @@ const ContributeQuestion = () => {
           validateStatus: (status) => status >= 200 && status < 500,
         }
       );
-      
 
-      alert(
-        response.data.status === "ok"
-          ? "Problem sent to our team for verification"
-          : response.data.message
-      );
+      if (response.data.status === "ok") {
+        alert("Problem sent to our team for verification");
+        reset(); // Reset the form fields after successful submission
+      } else {
+        alert(response.data.message);
+      }
     } catch (err) {
       console.log(err);
       alert("An error occurred while adding the problem");
