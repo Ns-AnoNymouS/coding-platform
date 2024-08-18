@@ -12,7 +12,16 @@ const Schema = new mongoose.Schema(
             required: [true, "Name cannot be empty"],
         },
         schedule: {
-            type: Object,
+            type: {
+                start: {
+                    type: Date,
+                    required: [true, "A contest must have a start date"],
+                },
+                end: {
+                    type: Date,
+                    required: [true, "A contest must have an end date"],
+                },
+            },
         },
         questionIds: {
             type: [mongoose.Schema.ObjectId],

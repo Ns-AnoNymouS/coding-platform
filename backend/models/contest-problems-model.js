@@ -37,7 +37,16 @@ const Schema = new mongoose.Schema(
             ],
         },
         points: {
-            type: Object,
+            type: {
+                positive: {
+                    type: Number,
+                    required: true,
+                },
+                negative: {
+                    type: Number,
+                    default: 0,
+                },
+            },
         },
     },
     {
@@ -57,7 +66,7 @@ async function getNextSequenceValue(sequenceName) {
 
 Schema.pre('save', async function (next) {
     if (this.isNew) {
-        this.problemNumber = await getNextSequenceValue('problemNumber');
+        this.problemNumber = await getNextSequenceValue('contestProblemNumber');
     }
     next();
 });

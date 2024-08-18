@@ -33,7 +33,7 @@ const _runCode = async (language, code, input, expectedOutput) => {
         // Create a temp file to hold the code
         await fs.writeFile(fileName, code);
         await fs.writeFile(inputFile, input);
-        
+
         // Construct the Docker run command
         const command = `docker run --rm -e EXECUTABLE="${executable}" -v "${process.cwd()}:/usr/src/app" --memory="256m" --memory-swap="500m" --cpus="1.0" ${imageName}`;
 
@@ -279,5 +279,20 @@ const getFileExtension = (language) => {
     }
 };
 
-export { submitCode, runCode };
+const getSubmissions = async (req, res) => {
+    try {
+        const { problemNumber } = req.query;
+        if (!problemNumber) {
+            return res.status(400).json({ status: "unsucessful", data: "problemNumber is required" });
+        }
+        const user_id = req.user.user._id;
+        const submissions = await Submission.find({ user: user_id, problem: problemNumber }).sort({ submittedAt: -1 });
+        res.status(200).json({status: "ok", data: submissions});
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: "unsucessful", data: "Internal Server Error" });
+    }
+}
+
+export { submitCode, runCode, getSubmissions };
 
