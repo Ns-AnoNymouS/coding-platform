@@ -110,8 +110,4 @@ const Contest = () => {
   );
 };
 
-    </Box>
-  )
-}
-
 export default Contest;
