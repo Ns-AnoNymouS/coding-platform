@@ -59,9 +59,10 @@ const ResetPassword = () => {
       <Container component="main" maxWidth="xl" 
       sx={{
         backgroundImage: 'url("https://i.pinimg.com/236x/0c/84/3f/0c843f96a6e997fff64e65057100b4af.jpg")',
-        maxHeight: "100vh",
+        minHeight: "90vh",
         backgroundSize: 'cover',
         padding: 0,
+        margin: 0,
       }}>
         <CssBaseline />
         <Box
@@ -93,6 +94,22 @@ const ResetPassword = () => {
               {...register("password")}
               error={!!errors.password}
               helperText={errors.password?.message}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "gray", // Default border color
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "gray", // Hover border color
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white", // White outline on focus
+                  },
+                },
+                "& .MuiFormLabel-root.Mui-focused": {
+                  color: "white", // White label color when focused
+                },
+              }}
             />
             <TextField
               margin="normal"
@@ -105,6 +122,22 @@ const ResetPassword = () => {
               {...register("confirmPassword")}
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword?.message}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "gray", // Default border color
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "gray", // Hover border color
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white", // White outline on focus
+                  },
+                },
+                "& .MuiFormLabel-root.Mui-focused": {
+                  color: "white", // White label color when focused
+                },
+              }}
             />
             <Button
               type="submit"
