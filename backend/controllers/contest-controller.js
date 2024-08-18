@@ -57,7 +57,7 @@ const getContest = async (req, res) => {
             query.contestTitle = new RegExp(title, 'i');
         }
 
-        const contest = await Contest.find(query, "_id contestNumber contestTitle schedule host")
+        const contest = await Contest.find(query, "_id contestNumber contestTitle schedule host participants")
             .limit(limit)
             .skip((page - 1) * limit);
 
