@@ -16,6 +16,7 @@ const schema = yup
 const ContributeTestCase = () => {
   const [problems, setProblems] = useState([]);
   const [selectedProblem, setSelectedProblem] = useState(null);
+  const [loading, setLoading] = useState(false); // State to manage loading
   const {
     control,
     handleSubmit,
@@ -47,14 +48,13 @@ const ContributeTestCase = () => {
   }, []);
 
   const onSubmit = async (data) => {
-    console.log(selectedProblem);
+    setLoading(true); // Set loading to true when submission starts
     try {
       const formattedData = {
         problemNumber: selectedProblem?.problem_id,
         givenInput: data.input,
         correctOutput: data.output,
       };
-      console.log(formattedData);
       const response = await axios.post(
         "http://localhost:6969/add-pending-test-case",
         formattedData,
@@ -76,6 +76,8 @@ const ContributeTestCase = () => {
     } catch (err) {
       console.log(err);
       alert("An error occurred while adding the test cases");
+    } finally {
+      setLoading(false); // Set loading to false after submission is complete
     }
   };
 
@@ -166,8 +168,13 @@ const ContributeTestCase = () => {
         </Box>
 
         <Box mt={2}>
-          <Button type="submit" variant="contained" color="secondary">
-            Submit
+          <Button
+            type="submit"
+            variant="contained"
+            color="secondary"
+            disabled={loading} // Disable the button when loading
+          >
+            {loading ? "Submitting..." : "Submit"}
           </Button>
         </Box>
       </form>

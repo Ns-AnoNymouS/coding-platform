@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -33,6 +33,7 @@ const schema = yup
   .required();
 
 const ContributeQuestion = () => {
+  const [loading, setLoading] = useState(false); // State to manage loading
   const {
     control,
     handleSubmit,
@@ -52,6 +53,7 @@ const ContributeQuestion = () => {
   });
 
   const onSubmit = async (data) => {
+    setLoading(true); // Set loading to true when submission starts
     const format = {
       constraints: data.constraints,
       description: data.description,
@@ -83,6 +85,8 @@ const ContributeQuestion = () => {
     } catch (err) {
       console.log(err);
       alert("An error occurred while adding the problem");
+    } finally {
+      setLoading(false); // Set loading to false after submission is complete
     }
   };
 
@@ -272,8 +276,13 @@ const ContributeQuestion = () => {
           </Grid>
         </Grid>
         <Box mt={2}>
-          <Button type="submit" variant="contained" color="secondary">
-            Submit
+          <Button
+            type="submit"
+            variant="contained"
+            color="secondary"
+            disabled={loading} // Disable the button when loading
+          >
+            {loading ? "Submitting..." : "Submit"}
           </Button>
         </Box>
       </form>
