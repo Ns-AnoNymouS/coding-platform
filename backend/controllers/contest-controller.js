@@ -57,14 +57,16 @@ const getContest = async (req, res) => {
             query.contestTitle = new RegExp(title, 'i');
         }
 
-        const contest = await Contest.find(query, "_id contestNumber contestTitle schedule host")
+        const contest = await Contest.find(query, "_id contestNumber contestTitle schedule host participants")
             .limit(limit)
             .skip((page - 1) * limit);
 
         const updatedContest = contest.map(item => {
+            const participants = item.participants || [];
             return {
                 ...item._doc,  // Spread the original document's properties
-                isHost: item.host == userId // Add the isHost key
+                isHost: item.host == userId, // Add the isHost key
+                isRegistered: participants.includes(userId),
             };
         });
 
@@ -216,7 +218,7 @@ const getContestQuestions = async (req, res) => {
     }
 };
 
-const getContestQuestionsById = async (req, res) => {
+const getContestQuestionById = async (req, res) => {
     try {
         const { questionId } = req.query;
         const user = req.user.user || {};
@@ -307,4 +309,4 @@ const registerContest = async (req, res) => {
     }
 }
 
-export { getContest, getContestQuestions, getContestQuestionsById, createContest, registerContest, createContestQuestion };
+export { getContest, getContestQuestions, getContestQuestionById, createContest, registerContest, createContestQuestion };

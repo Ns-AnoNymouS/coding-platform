@@ -6,7 +6,7 @@ import fs from 'fs';
 import { verifyToken, adminOnly, checkToken } from '../middlewares/login-middleware.js';
 import {
     createContest, getContest, createContestQuestion,
-    getContestQuestions, getContestQuestionsById, registerContest
+    getContestQuestions, getContestQuestionById, registerContest
 } from '../controllers/contest-controller.js';
 
 const router = express.Router();
@@ -29,6 +29,7 @@ const upload = multer({ storage: storage });
 
 router.get("/all-contest", checkToken, getContest);
 router.get("/get-contest-question", checkToken, getContestQuestions);
+router.get("/get-contest-question-by-id", checkToken, getContestQuestionById);
 router.post("/create-contest", verifyToken, createContest);
 router.post("/register-contest", verifyToken, registerContest);
 router.post("/create-contest-problem", upload.single('file'), verifyToken, createContestQuestion);
