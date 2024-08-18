@@ -97,6 +97,7 @@ const ProblemsPage = () => {
   const [easyProblems, setEasyProblems] = useState(0);
   const [medProblems, setMedProblems] = useState(0);
   const [hardProblems, setHardProblems] = useState(0);
+  const [solvedProblems, setSolvedProblems] = useState(0);
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -125,6 +126,7 @@ const ProblemsPage = () => {
       setHardProblems(response.data.hardSolved);
       setProblems(response.data.data);
       setTotProblems(response.data.totalDocuments);
+      setSolvedProblems(response.data.solved);
     } catch (err) {
       console.log(err);
     }
@@ -347,7 +349,7 @@ const ProblemsPage = () => {
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {`You have completed ${
-                    easyProblems + medProblems + hardProblems
+                    solvedProblems
                   } out of ${totProblems} problems.`}
                 </Typography>
                 <PieChart width={240} height={240}>
