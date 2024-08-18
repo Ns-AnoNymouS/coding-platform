@@ -4,7 +4,6 @@ import { classnames } from "../utils/general";
 import { languageOptions } from "../constants/languageOptions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import useKeyPress from "../hooks/useKeyPress";
 import CodeEditorWindow from "../components/Editor/CodeEditorWindow";
 import CustomInput from "../components/codingPlayground/CustomInput";
 import LanguagesDropdown from "../components/Editor/LanguagesDropdown";
@@ -17,7 +16,6 @@ const CodingPlayGround = () => {
   const [outputDetails, setOutputDetails] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [language, setLanguage] = useState(languageOptions[0]);
-  const [savedCode, setSavedCode] = useState("");
 
   const onSelectChange = (sl) => {
     setLanguage(sl);
@@ -33,11 +31,11 @@ const CodingPlayGround = () => {
       if (response.data && response.data.code) {
         setCode(response.data.code); 
       } else {
-        setCode(""); // Clear the editor if no code is found
+        setCode(""); 
       }
     } catch (err) {
       console.log(err);
-      setCode(""); // Clear the editor on error as well
+      setCode(""); 
     }
   };
 

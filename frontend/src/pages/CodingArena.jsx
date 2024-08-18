@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Grid, Box, IconButton, Tabs, Tab, Button, CircularProgress } from "@mui/material";
+import { Grid, Box, IconButton, Tabs, Tab, Button } from "@mui/material";
 import ProblemStatement from "../components/codingArena/ProblemStatement";
 import Solutions from "../components/codingArena/Solutions";
 import Submissions from "../components/codingArena/Submissions";
@@ -30,12 +30,15 @@ const CodingArena = () => {
   const [isSubmission, setIsSubmission] = useState(false);
   const [outputData, setOutputData] = useState({});
   const [examples, setExamples] = useState([]);
-  const [code, setCode] = useState('');
-  const [language, setLanguage] = useState(languageOptions[0]); // Track language locally
-  const [dataFetched, setDataFetched] = useState(false); // Track data fetch status
-  const [loading, isLoading] = useState(false);
+  const [code, setCode] = useState("");
+  const [language, setLanguage] = useState(languageOptions[0]);
+  const [dataFetched, setDataFetched] = useState(false);
+  const [loading, setLoading] = useState({
+    save: false,
+    run: false,
+    submit: false,
+  });
 
-  // Use the custom hook for language management
   const { changeLanguage } = useLanguage(languageOptions[0]);
 
   useEffect(() => {
@@ -54,11 +57,11 @@ const CodingArena = () => {
             Error: "Cannot Find Problem, Go back to home page.",
           });
         }
-        setDataFetched(true); // Mark data as fetched
+        setDataFetched(true);
       } catch (error) {
         console.error("Error fetching problem data:", error);
         setProblemData({ Error: "An error occurred. Please try again later." });
-        setDataFetched(true); // Mark data as fetched
+        setDataFetched(true);
       }
     };
 
@@ -66,16 +69,13 @@ const CodingArena = () => {
   }, [problem_id]);
 
   useEffect(() => {
-
     if (dataFetched) {
       changeLanguage(language);
     }
   }, [dataFetched, language, changeLanguage]);
 
-  // Handle language selection change
   const onSelectChange = (selectedLanguage) => {
     setLanguage(selectedLanguage);
-    console.log("language "+language.value);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -90,12 +90,17 @@ const CodingArena = () => {
     };
 
     try {
+      setLoading({
+        run: false,
+        submit: false,
+        save: true,
+      });
       const response = await axios.post(
         "http://127.0.0.1:6969/save-code",
         formData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           validateStatus: (status) => status >= 200 && status < 500,
         }
@@ -108,24 +113,33 @@ const CodingArena = () => {
       }
     } catch (error) {
       console.error("An error occurred while saving the code.");
+    } finally {
+      setLoading({
+        run: false,
+        submit: false,
+        save: false,
+      });
     }
   };
 
   const fetchCode = async (selectedLanguage) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:6969/get-saved-code?language=${selectedLanguage}&problemNumber=${problem_id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+      const response = await axios.get(
+        `http://127.0.0.1:6969/get-saved-code?language=${selectedLanguage}&problemNumber=${problem_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      });
+      );
       if (response.data && response.data.code) {
-        setCode(response.data.code); 
+        setCode(response.data.code);
       } else {
-        setCode(""); 
+        setCode("");
       }
     } catch (err) {
       console.log(err);
-      setCode(""); 
+      setCode("");
     }
   };
 
@@ -141,14 +155,17 @@ const CodingArena = () => {
 
       try {
         for (let i = 0; i < inputData[0].length; i++) {
-          console.log(code);
           const data = {
             language: language.value,
             code: btoa(code),
             input: btoa(examples[0].givenInput[i]),
             expectedOutput: examples[0].correctOutput[i],
           };
-          isLoading(true);
+          setLoading({
+            run: true,
+            submit: false,
+            save: false,
+          });
           const response = await axios.post(
             "http://localhost:6969/run-arena-code",
             data,
@@ -179,8 +196,12 @@ const CodingArena = () => {
           passed: "0/0",
         });
         setOutputVisible(true);
-      } finally{
-        isLoading(false);
+      } finally {
+        setLoading({
+          run: false,
+          submit: false,
+          save: false,
+        });
       }
     } else {
       setShowModal(true);
@@ -196,7 +217,11 @@ const CodingArena = () => {
       };
 
       try {
-        isLoading(true);
+        setLoading({
+          run: false,
+          submit: true,
+          save: false,
+        });
         const response = await axios.post(
           "http://localhost:6969/submit-code",
           data,
@@ -239,8 +264,12 @@ const CodingArena = () => {
           passed: "0/0",
         });
         setSubmitVisible(true);
-      } finally{
-        isLoading(false);
+      } finally {
+        setLoading({
+          run: false,
+          submit: false,
+          save: false,
+        });
       }
     } else {
       setShowModal(true);
@@ -269,7 +298,9 @@ const CodingArena = () => {
         return <Submissions submissions={submissions} />;
       case 0:
       default:
-        return readyForRender && problemData && Object.keys(problemData).length > 0 ? (
+        return readyForRender &&
+          problemData &&
+          Object.keys(problemData).length > 0 ? (
           <ProblemStatement
             title={problemData.title || ""}
             description={problemData.description || ""}
@@ -319,33 +350,54 @@ const CodingArena = () => {
                   aria-label="Tabs for Problem, Solutions, and Submissions"
                   sx={{ marginBottom: 2 }}
                 >
-                  <Tab
+                  {/* <Tab
                     label="Problem"
                     sx={{
                       bgcolor: currentTab === 0 ? "#8888" : "gray",
                       color: currentTab === 0 ? "white" : "white",
+                      color: "white",
                       "&:hover": {
                         bgcolor: currentTab === 0 ? "#8899" : "darkgray",
                       },
                     }}
+                  /> */}
+                  <Tab
+                    label="Problem"
+                    sx={{
+                      bgcolor: "transparent",
+                      color: "#888888",
+                      "&:hover": {
+                        color: "#ffffff", 
+                      },
+                      "&.Mui-selected": {
+                        color: "#ffffff",
+                      },
+                    }}
                   />
+
                   <Tab
                     label="Solutions"
                     sx={{
-                      bgcolor: currentTab === 1 ? "#8888" : "gray",
-                      color: currentTab === 1 ? "white" : "white",
+                      bgcolor: "transparent",
+                      color: "#888888",
                       "&:hover": {
-                        bgcolor: currentTab === 1 ? "#8899" : "darkgray",
+                        color: "#ffffff", 
+                      },
+                      "&.Mui-selected": {
+                        color: "#ffffff",
                       },
                     }}
                   />
                   <Tab
                     label="Submissions"
                     sx={{
-                      bgcolor: currentTab === 2 ? "#8888" : "gray",
-                      color: currentTab === 2 ? "white" : "white",
+                      bgcolor: "transparent",
+                      color: "#888888",
                       "&:hover": {
-                        bgcolor: currentTab === 2 ? "#8899" : "darkgray",
+                        color: "#ffffff", 
+                      },
+                      "&.Mui-selected": {
+                        color: "#ffffff",
                       },
                     }}
                   />
@@ -435,109 +487,82 @@ const CodingArena = () => {
         }}
       >
         <Button
-        sx={{
-          ...customStyles.control,
-          width: "auto",
-          maxWidth: "none",
-          padding: "6px 12px",
-          marginRight: 1,
-          border: "none",
-          backgroundColor: "black",
-          color: "white",
-          "&:hover": {
-            cursor: "pointer",
-            color: "black",
-          },
-          position: "relative", // For positioning the spinner
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        variant="text"
-        onClick={handleSave}
-        disabled={loading} // Disable button while loading
-      >
-        {loading && (
-          <CircularProgress
-            size={24}
-            sx={{
-              position: "absolute",
-              color: "white",
-            }}
-          />
-        )}
-        {!loading && "Save"}
-      </Button>
+          sx={{
+            ...customStyles.control,
+            width: "auto",
+            maxWidth: "none",
+            padding: "6px 12px",
+            marginRight: 1,
+            border: "none",
+            backgroundColor: "black",
+            color: "white",
+            "&:hover": {
+              cursor: "pointer",
+              color: "black",
+            },
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          variant="text"
+          onClick={handleSave}
+          disabled={loading.run || loading.save || loading.submit}
+        >
+          Save
+        </Button>
 
-      <Button
-        sx={{
-          ...customStyles.control,
-          width: "auto",
-          maxWidth: "none",
-          padding: "6px 12px",
-          marginRight: 1,
-          border: "none",
-          backgroundColor: "black",
-          color: "white",
-          "&:hover": {
-            cursor: "pointer",
-            color: "black",
-          },
-          position: "relative", // For positioning the spinner
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        variant="text"
-        onClick={handleRunClick}
-        disabled={loading} // Disable button while loading
-      >
-        {loading && (
-          <CircularProgress
-            size={24}
-            sx={{
-              position: "absolute",
-              color: "white",
-            }}
-          />
-        )}
-        {!loading && "Run"}
-      </Button>
+        <Button
+          sx={{
+            ...customStyles.control,
+            width: "auto",
+            maxWidth: "none",
+            padding: "6px 12px",
+            marginRight: 1,
+            border: "none",
+            backgroundColor: "black",
+            color: "white",
+            "&:hover": {
+              cursor: "pointer",
+              color: "black",
+            },
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          variant="text"
+          onClick={handleRunClick}
+          disabled={loading.run || loading.save || loading.submit}
+        >
+          Run
+        </Button>
 
-      <Button
-        sx={{
-          ...customStyles.control,
-          width: "auto",
-          maxWidth: "none",
-          padding: "6px 12px",
-          marginRight: 1,
-          border: "none",
-          backgroundColor: "black",
-          color: "white",
-          "&:hover": {
-            cursor: "pointer",
-            color: "black",
-          },
-          position: "relative", // For positioning the spinner
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        variant="text"
-        onClick={handleSubmitClick}
-        disabled={loading} // Disable button while loading
-      >
-        {loading && (
-          <CircularProgress
-            size={24}
-            sx={{
-              position: "absolute",
-              color: "white",
-            }}
-          />
-        )}
-        {!loading && "Submit"}
-      </Button>
+        <Button
+          sx={{
+            ...customStyles.control,
+            width: "auto",
+            maxWidth: "none",
+            padding: "6px 12px",
+            marginRight: 1,
+            border: "none",
+            backgroundColor: "black",
+            color: "white",
+            "&:hover": {
+              cursor: "pointer",
+              color: "black",
+            },
+            position: "relative", // For positioning the spinner
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          variant="text"
+          onClick={handleSubmitClick}
+          disabled={loading.run || loading.save || loading.submit}
+        >
+          Submit
+        </Button>
       </Box>
       {!isLoggedIn && (
         <LoginModal open={showModal} onClose={() => setShowModal(false)} />

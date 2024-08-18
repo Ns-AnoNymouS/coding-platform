@@ -7,7 +7,7 @@ import TestCaseTable from "../components/Table/TestCaseTable";
 const AdminPage = () => {
   const [problemsData, setProblemsData] = useState(null);
   const [testCasesData, setTestCasesData] = useState(null);
-  const [refreshFlag, setRefreshFlag] = useState(false); // State to trigger refresh
+  const [refreshFlag, setRefreshFlag] = useState(false); 
 
   useEffect(() => {
     const fetchProblems = async () => {
