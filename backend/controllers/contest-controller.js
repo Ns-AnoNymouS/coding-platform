@@ -1,4 +1,7 @@
+import fs from 'fs';
+
 import ContestQuestions from "../models/contest-problems-model.js";
+import TestCase from "../models/testcase-model.js";
 import Contest from "../models/contest-model.js";
 import User from "../models/user.js";
 
@@ -84,6 +87,90 @@ const getContest = async (req, res) => {
             data: "Internal Server Error",
             error: err.message
         });
+    }
+}
+
+const createContestQuestion = async (req, res) => {
+    try {
+        const { contestId, title, positivePoints, negativePoints, description, difficulty, constraints } = req.body;
+        const user = req.user.user || {};
+        const userId = user._id;
+
+        if (!contestId) {
+            return res.status(400).json({ message: "contest ID not found!" });
+        }
+
+        const contest = await Contest.findById(contestId);
+        if (!contest) {
+            return res.status(404).json({
+                status: "unsuccessful",
+                data: "Contest ID not found"
+            })
+        }
+
+        if (contest.host != userId) {
+            return res.status(400).json({
+                status: "unsuccessful",
+                data: "User not authorized to add questions to the contest"
+            })
+        }
+
+        let jsonData;
+        try {
+            // Parse the JSON content
+            const fileContent = fs.readFileSync(req.file.path, 'utf-8');
+            jsonData = JSON.parse(fileContent);
+        } catch (parseError) {
+            res.status(400).send({ status: "unsucessful", message: 'Invalid JSON format', error: parseError.message });
+            return;
+        }
+
+        // Aggregate inputs and outputs
+        const givenInputs = [];
+        const correctOutputs = [];
+        jsonData.forEach(({ input, output }) => {
+            givenInputs.push(input);
+            correctOutputs.push(output);
+        });
+
+        // Create a new TestCase document
+        const newTestCase = new TestCase({
+            givenInput: givenInputs,
+            correctOutput: correctOutputs,
+        });
+
+        // Save the document to the database
+        await newTestCase.save();
+
+        const question = await ContestQuestions.create({
+            contestId,
+            title,
+            points: { positive: positivePoints, negative: negativePoints },
+            description,
+            difficulty,
+            constraints,
+            testCaseId: newTestCase._id,
+        });
+
+        contest.questionIds.push(question._id);
+        await contest.save();
+
+        res.status(201).json({
+            status: "ok",
+            data: question,
+        });
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            status: "unsuccessful",
+            data: err.message,
+        });
+    } finally {
+        try {
+            if (req.file) {
+                fs.unlinkSync(req.file.path);
+            }
+        } catch (err) {console.log(err) }
     }
 }
 
@@ -205,7 +292,7 @@ const registerContest = async (req, res) => {
                 data: "User already registered for the contest"
             })
         }
-        contest.participants.includes(userId)
+        contest.participants.push(userId)
         await contest.save();
 
         res.status(200).json({
@@ -221,4 +308,4 @@ const registerContest = async (req, res) => {
     }
 }
 
-export { getContest, getContestQuestions, getContestQuestionsById, createContest, registerContest };
+export { getContest, getContestQuestions, getContestQuestionsById, createContest, registerContest, createContestQuestion };
