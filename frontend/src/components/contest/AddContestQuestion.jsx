@@ -37,7 +37,6 @@ const schema = yup
       .required("Negative Points are required")
       .integer("Negative Points must be an integer"),
     constraints: yup.string().required("Constraints are required"),
-    contestID: yup.string().required("Contest ID is required"),
     testCaseFile: yup.mixed().required("Test case file is required"),
   })
   .required();
@@ -45,6 +44,8 @@ const schema = yup
 const AddContestQuestion = () => {
   const [fileContent, setFileContent] = useState("");
   const { "contest-id": contestId } = useParams();
+  console.log(contestId)
+
   const {
     control,
     handleSubmit,
@@ -64,29 +65,33 @@ const AddContestQuestion = () => {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     try {
-      const formattedData = {
-        contestId,
-        title: data.problemName,
-        positivePoints: data.points,
-        negativePoints: data.negativePoints,
-        description: data.description,
-        difficulty: data.difficulty,
-        constraints: data.constraints,
-        file: data.testCaseFile,
-      };
-      const response = axios.post("/create-contest-problem", formattedData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      const formData = new FormData();
+      formData.append("contestId", contestId);
+      formData.append("title", data.problemName);
+      formData.append("positivePoints", data.points);
+      formData.append("negativePoints", data.negativePoints);
+      formData.append("description", data.description);
+      formData.append("difficulty", data.difficulty);
+      formData.append("constraints", data.constraints);
+      formData.append("file", data.testCaseFile);
+
+      const response = await axios.post("http://localhost:6969/create-contest-problem", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         validateStatus: (status) => status >= 200 && status < 500,
       });
-      console.log(response.data.data);
+
+      alert(response.data.data);
     } catch (err) {
       console.error(err);
+      alert("An error occurred while submitting the form.");
+    } finally {
+      reset();
     }
-    console.log("Form submitted:", data);
-    alert("Problem details submitted successfully!");
-    reset();
   };
 
   const handleFileChange = (event) => {
@@ -97,12 +102,12 @@ const AddContestQuestion = () => {
         try {
           const json = JSON.parse(reader.result);
           setFileContent(JSON.stringify(json, null, 2));
+          setValue("testCaseFile", file, { shouldValidate: true });
         } catch (error) {
           setFileContent("Invalid JSON file.");
         }
       };
       reader.readAsText(file);
-      setValue("testCaseFile", file, { shouldValidate: true });
     } else {
       setFileContent("Please select a valid JSON file.");
     }
@@ -138,19 +143,13 @@ const AddContestQuestion = () => {
                       fullWidth
                       error={!!errors.problemName}
                       helperText={errors.problemName?.message}
-                      InputLabelProps={{
-                        style: { color: "white" },
-                      }}
+                      InputLabelProps={{ style: { color: "white" } }}
                       InputProps={{
                         sx: {
                           "& .MuiOutlinedInput-root": {
-                            "&.Mui-focused fieldset": {
-                              borderColor: "white",
-                            },
+                            "&.Mui-focused fieldset": { borderColor: "white" },
                           },
-                          "& .MuiInputBase-input": {
-                            color: "white",
-                          },
+                          "& .MuiInputBase-input": { color: "white" },
                         },
                       }}
                     />
@@ -172,19 +171,13 @@ const AddContestQuestion = () => {
                       fullWidth
                       error={!!errors.description}
                       helperText={errors.description?.message}
-                      InputLabelProps={{
-                        style: { color: "white" },
-                      }}
+                      InputLabelProps={{ style: { color: "white" } }}
                       InputProps={{
                         sx: {
                           "& .MuiOutlinedInput-root": {
-                            "&.Mui-focused fieldset": {
-                              borderColor: "white",
-                            },
+                            "&.Mui-focused fieldset": { borderColor: "white" },
                           },
-                          "& .MuiInputBase-input": {
-                            color: "white",
-                          },
+                          "& .MuiInputBase-input": { color: "white" },
                         },
                       }}
                     />
@@ -205,25 +198,19 @@ const AddContestQuestion = () => {
                       fullWidth
                       error={!!errors.difficulty}
                       helperText={errors.difficulty?.message}
-                      InputLabelProps={{
-                        style: { color: "white" },
-                      }}
+                      InputLabelProps={{ style: { color: "white" } }}
                       InputProps={{
                         sx: {
                           "& .MuiOutlinedInput-root": {
-                            "&.Mui-focused fieldset": {
-                              borderColor: "white",
-                            },
+                            "&.Mui-focused fieldset": { borderColor: "white" },
                           },
-                          "& .MuiInputBase-input": {
-                            color: "white",
-                          },
+                          "& .MuiInputBase-input": { color: "white" },
                         },
                       }}
                     >
-                      <MenuItem value="Easy">Easy</MenuItem>
-                      <MenuItem value="Medium">Medium</MenuItem>
-                      <MenuItem value="Hard">Hard</MenuItem>
+                      <MenuItem value="easy">Easy</MenuItem>
+                      <MenuItem value="medium">Medium</MenuItem>
+                      <MenuItem value="hard">Hard</MenuItem>
                     </TextField>
                   )}
                 />
@@ -241,19 +228,13 @@ const AddContestQuestion = () => {
                       fullWidth
                       error={!!errors.points}
                       helperText={errors.points?.message}
-                      InputLabelProps={{
-                        style: { color: "white" },
-                      }}
+                      InputLabelProps={{ style: { color: "white" } }}
                       InputProps={{
                         sx: {
                           "& .MuiOutlinedInput-root": {
-                            "&.Mui-focused fieldset": {
-                              borderColor: "white",
-                            },
+                            "&.Mui-focused fieldset": { borderColor: "white" },
                           },
-                          "& .MuiInputBase-input": {
-                            color: "white",
-                          },
+                          "& .MuiInputBase-input": { color: "white" },
                         },
                         type: "number",
                       }}
@@ -274,19 +255,13 @@ const AddContestQuestion = () => {
                       fullWidth
                       error={!!errors.negativePoints}
                       helperText={errors.negativePoints?.message}
-                      InputLabelProps={{
-                        style: { color: "white" },
-                      }}
+                      InputLabelProps={{ style: { color: "white" } }}
                       InputProps={{
                         sx: {
                           "& .MuiOutlinedInput-root": {
-                            "&.Mui-focused fieldset": {
-                              borderColor: "white",
-                            },
+                            "&.Mui-focused fieldset": { borderColor: "white" },
                           },
-                          "& .MuiInputBase-input": {
-                            color: "white",
-                          },
+                          "& .MuiInputBase-input": { color: "white" },
                         },
                         type: "number",
                       }}
@@ -309,19 +284,13 @@ const AddContestQuestion = () => {
                       fullWidth
                       error={!!errors.constraints}
                       helperText={errors.constraints?.message}
-                      InputLabelProps={{
-                        style: { color: "white" },
-                      }}
+                      InputLabelProps={{ style: { color: "white" } }}
                       InputProps={{
                         sx: {
                           "& .MuiOutlinedInput-root": {
-                            "&.Mui-focused fieldset": {
-                              borderColor: "white",
-                            },
+                            "&.Mui-focused fieldset": { borderColor: "white" },
                           },
-                          "& .MuiInputBase-input": {
-                            color: "white",
-                          },
+                          "& .MuiInputBase-input": { color: "white" },
                         },
                       }}
                     />
@@ -388,7 +357,7 @@ const AddContestQuestion = () => {
                       </IconButton>
                     </Tooltip>
                   </Box>
-                  {fileContent && fileContent !== null && (
+                  {fileContent && (
                     <Box
                       mt={2}
                       p={2}
