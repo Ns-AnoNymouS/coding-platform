@@ -6,6 +6,7 @@ import userRoutes from "./routes/user.js";
 import problemsRoutes from "./routes/problems.js";
 import testcaseRoutes from "./routes/testcases.js";
 import saveCodeRoutes from "./routes/savecode.js";
+import contestRoutes from "./routes/contest.js";
 
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/', userRoutes);
 app.use('/', problemsRoutes);
 app.use('/', testcaseRoutes); 
 app.use('/', saveCodeRoutes); 
+app.use('/', contestRoutes); 
 
 server.listen(PORT, ()=>{
     console.log(`Listening on port ${PORT}`);

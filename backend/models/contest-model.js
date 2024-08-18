@@ -17,7 +17,6 @@ const Schema = new mongoose.Schema(
         questionIds: {
             type: [mongoose.Schema.ObjectId],
             ref: "ContestQuestions",
-            required: [true, "A contest must have atleast one question"],
         },
         description: {
             type: String,
@@ -27,6 +26,10 @@ const Schema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: "User",
             required: [true, "A contest must have a host"],
+        },
+        participants: {
+            type: [mongoose.Schema.ObjectId],
+            ref: "User",
         }
     },
     {

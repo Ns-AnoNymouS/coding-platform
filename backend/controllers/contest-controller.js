@@ -4,16 +4,13 @@ import User from "../models/user.js";
 
 const createContest = async (req, res) => {
     try {
-        const user = req.user.user || {};
-        const userId = user._id;
-
+        const userId = req.user.user._id;
         const { contestTitle, schedule, description } = req.body;
 
         const contest = await Contest.create({
             contestTitle,
             schedule,
             description,
-            questionIds,
             host: userId
         });
 
@@ -41,7 +38,10 @@ const getContest = async (req, res) => {
         const title = req.query.title;
 
         const now = new Date();
-        const query = { schedule: {} };
+        const query = {};
+        if (type) {
+            query.schedule = {}
+        }
         if (type == "upcoming") {
             query.schedule.start = { $gte: now };
         }
@@ -61,9 +61,10 @@ const getContest = async (req, res) => {
             .skip((page - 1) * limit);
 
         const updatedContest = contest.map(item => {
+            console.log(item);
             return {
                 ...item._doc,  // Spread the original document's properties
-                isHost: item.host.toString() === userId.toString() // Add the isHost key
+                isHost: item.host == userId // Add the isHost key
             };
         });
 
@@ -180,4 +181,44 @@ const getContestQuestionsById = async (req, res) => {
     }
 };
 
-export { getContest, getContestQuestions, getContestQuestionsById };
+const registerContest = async (req, res) => {
+    try {
+        const { contestId } = req.body;
+        const user = req.user.user || {};
+        const userId = user._id;
+
+        if (!contestId) {
+            return res.status(400).json({ message: "contest ID not found!" });
+        }
+
+        const contest = await Contest.findById(contestId);
+        if (!contest) {
+            return res.status(404).json({
+                status: "unsuccessful",
+                data: "Contest ID not found"
+            })
+        }
+
+        if (contest.participants.includes(userId)) {
+            return res.status(400).json({
+                status: "unsuccessful",
+                data: "User already registered for the contest"
+            })
+        }
+        contest.participants.includes(userId)
+        await contest.save();
+
+        res.status(200).json({
+            status: "ok",
+            data: "User registered for the contest",
+        });
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            status: "unsuccessful",
+            data: err.message,
+        });
+    }
+}
+
+export { getContest, getContestQuestions, getContestQuestionsById, createContest, registerContest };
