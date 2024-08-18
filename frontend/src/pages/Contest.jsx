@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Box, Typography, Container, Button, TextField } from "@mui/material";
 import ContestTable from "../components/contest/ContestTable";
+import { useNavigate } from "react-router-dom";
 
 const Contest = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [contests, setContests] = useState({ current: [], past: [] });
   const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate();
   const fetchContests = async () => {
     try {
       setLoading(true);
@@ -95,6 +96,7 @@ const Contest = () => {
         <Button
           variant="contained"
           sx={{ backgroundColor: '#f5f5f5', color: '#000', marginLeft: 2 }}
+          onClick={()=>navigate('/create-contest')}
         >
           Add Contest
         </Button>
