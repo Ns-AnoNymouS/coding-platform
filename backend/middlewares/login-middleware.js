@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken';
 
 const checkToken = (req, res, next) => {
+    // check whethet the user logged in or not
     const authHeader = req.headers['authorization'];
     req.user = {}
-    // If the Authorization header is missing, send a 403 response
+    
     if (authHeader) {
         const token = authHeader.split(' ')[1];
         if (token != "null") {
@@ -23,6 +24,7 @@ const checkToken = (req, res, next) => {
 };
 
 const verifyToken = (req, res, next) => {
+    // allow user only if he is logged in
     const authHeader = req.headers['authorization'];
 
     // If the Authorization header is missing, send a 403 response

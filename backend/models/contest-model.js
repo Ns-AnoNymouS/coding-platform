@@ -3,40 +3,31 @@ import Counter from "./counter-model.js";
 
 const Schema = new mongoose.Schema(
     {
-        problemNumber: {
+        contestNumber: {
             type: Number,
             unique: true,
         },
-        title: {
+        contestTitle: {
             type: String,
             required: [true, "Name cannot be empty"],
         },
-        examples: {
-            type: [String],
+        schedule: {
+            type: Object,
         },
-        testCaseId: {
-            type: mongoose.Schema.ObjectId,
-            ref: "TestCase",
-            required: [true, "A test case must be present for a problem"],
+        questionIds: {
+            type: [mongoose.Schema.ObjectId],
+            ref: "ContestQuestions",
+            required: [true, "A contest must have atleast one question"],
         },
         description: {
             type: String,
             required: [true, "A Problem Shoud have it's description"],
         },
-        constraints: {
-            type: String,
-        },
-        difficulty: {
-            type: String,
-            enum: ["easy", "medium", "hard"],
-            required: [
-                true,
-                "A problem Should have difficulty either Easy,Medium or Hard",
-            ],
-        },
-        tags: {
-            type: [String],
-        },
+        host: {
+            type: mongoose.Schema.ObjectId,
+            ref: "User",
+            required: [true, "A contest must have a host"],
+        }
     },
     {
         toJSON: { virtuals: true },
@@ -55,10 +46,10 @@ async function getNextSequenceValue(sequenceName) {
 
 Schema.pre('save', async function (next) {
     if (this.isNew) {
-        this.problemNumber = await getNextSequenceValue('problemNumber');
+        this.contestNumber = await getNextSequenceValue('contestNumber');
     }
     next();
 });
 
-const Problem = mongoose.model("Problem", Schema);
-export default Problem;
+const Contest = mongoose.model("Contest", Schema);
+export default Contest;

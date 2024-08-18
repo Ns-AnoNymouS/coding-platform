@@ -3,6 +3,11 @@ import Counter from "./counter-model.js";
 
 const Schema = new mongoose.Schema(
     {
+        contestId: {
+            type: mongoose.Schema.ObjectId,
+            ref: "Contest",
+            required: [true, "A contest must be present for a problem"],
+        },
         problemNumber: {
             type: Number,
             unique: true,
@@ -10,9 +15,6 @@ const Schema = new mongoose.Schema(
         title: {
             type: String,
             required: [true, "Name cannot be empty"],
-        },
-        examples: {
-            type: [String],
         },
         testCaseId: {
             type: mongoose.Schema.ObjectId,
@@ -34,8 +36,8 @@ const Schema = new mongoose.Schema(
                 "A problem Should have difficulty either Easy,Medium or Hard",
             ],
         },
-        tags: {
-            type: [String],
+        points: {
+            type: Object,
         },
     },
     {
@@ -60,5 +62,5 @@ Schema.pre('save', async function (next) {
     next();
 });
 
-const Problem = mongoose.model("Problem", Schema);
-export default Problem;
+const ContestQuestions = mongoose.model("ContestQuestions", Schema);
+export default ContestQuestions;
