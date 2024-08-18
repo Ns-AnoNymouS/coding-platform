@@ -42,18 +42,16 @@ const getContest = async (req, res) => {
 
         const now = new Date();
         const query = {};
-        if (type) {
-            query.schedule = {}
-        }
+
         if (type == "upcoming") {
-            query.schedule.start = { $gte: now };
+            query["schedule.start"] = { $gte: now };
         }
         if (type == "ongoing") {
-            query.schedule.start = { $lte: now };
-            query.schedule.end = { $gte: now };
+            query["schedule.start"] = { $lte: now };
+            query["schedule.end"] = { $gte: now };
         }
         if (type == "previous") {
-            query.schedule.end = { $lt: now };
+            query["schedule.end"] = { $lt: now };
         }
         if (title) {
             query.contestTitle = new RegExp(title, 'i');
@@ -64,7 +62,6 @@ const getContest = async (req, res) => {
             .skip((page - 1) * limit);
 
         const updatedContest = contest.map(item => {
-            console.log(item);
             return {
                 ...item._doc,  // Spread the original document's properties
                 isHost: item.host == userId // Add the isHost key
