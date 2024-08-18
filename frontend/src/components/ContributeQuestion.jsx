@@ -33,11 +33,11 @@ const schema = yup
   .required();
 
 const ContributeQuestion = () => {
-  const [loading, setLoading] = useState(false); // State to manage loading
+  const [loading, setLoading] = useState(false); 
   const {
     control,
     handleSubmit,
-    reset, // This function will reset the form fields
+    reset, 
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -53,7 +53,7 @@ const ContributeQuestion = () => {
   });
 
   const onSubmit = async (data) => {
-    setLoading(true); // Set loading to true when submission starts
+    setLoading(true); 
     const format = {
       constraints: data.constraints,
       description: data.description,
@@ -78,7 +78,7 @@ const ContributeQuestion = () => {
 
       if (response.data.status === "ok") {
         alert("Problem sent to our team for verification");
-        reset(); // Reset the form fields after successful submission
+        reset(); 
       } else {
         alert(response.data.message);
       }
@@ -86,7 +86,7 @@ const ContributeQuestion = () => {
       console.log(err);
       alert("An error occurred while adding the problem");
     } finally {
-      setLoading(false); // Set loading to false after submission is complete
+      setLoading(false); 
     }
   };
 
@@ -280,7 +280,7 @@ const ContributeQuestion = () => {
             type="submit"
             variant="contained"
             color="secondary"
-            disabled={loading} // Disable the button when loading
+            disabled={loading} 
           >
             {loading ? "Submitting..." : "Submit"}
           </Button>

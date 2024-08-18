@@ -90,7 +90,7 @@ const DataTable = ({ rows }) => {
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ marginTop: 8 }} // Adjust this value to move the Snackbar down
+        sx={{ marginTop: 8 }} 
       >
         <Alert
           onClose={handleSnackbarClose}

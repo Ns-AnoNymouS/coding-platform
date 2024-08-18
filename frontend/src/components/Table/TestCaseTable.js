@@ -9,7 +9,7 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
   const [selectedTestCase, setSelectedTestCase] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Default severity is "success"
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); 
 
   const handleOpenModal = async (testCase) => {
     try {
@@ -18,7 +18,7 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
       );
       setSelectedTestCase({
         ...response.data.data,
-        testcaseID: testCase._id, // Make sure to pass the testcaseID
+        testcaseID: testCase._id, 
         input: testCase.givenInput,
         output: testCase.correctOutput,
       });
@@ -54,15 +54,15 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
         setSnackbarSeverity("error");
       }
 
-      setSnackbarOpen(true); // Open the Snackbar
-      onRefresh(); // Trigger a refresh after approval/decline
-      handleCloseModal(); // Close the modal after the action
+      setSnackbarOpen(true); 
+      onRefresh(); 
+      handleCloseModal();
     } catch (err) {
       console.error(err);
       setSnackbarMessage("An error occurred while processing the request.");
       setSnackbarSeverity("error");
-      setSnackbarOpen(true); // Open the Snackbar
-      handleCloseModal(); // Close the modal even if there's an error
+      setSnackbarOpen(true);
+      handleCloseModal(); 
     }
   };
 
@@ -76,7 +76,7 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        position: "relative", // Ensure the container has relative positioning
+        position: "relative", 
       }}
     >
       <TableContainer
@@ -127,9 +127,9 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Set the position to top-right
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} 
         sx={{ 
-          marginTop: 8 // Adjust this value to move the Snackbar down
+          marginTop: 8 
         }}
       >
         <Alert

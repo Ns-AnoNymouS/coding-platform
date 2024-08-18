@@ -53,21 +53,19 @@ const QuestionDetailsModal = ({
 
   const handleApprove = async () => {
     try {
-      await onApprove(); // Assuming onApprove returns a promise
-      handleClose(); // Close the modal on success
+      await onApprove(); 
+      handleClose(); 
     } catch (error) {
       console.error('Approval failed:', error);
-      // Optionally handle the error, e.g., by showing an error message
     }
   };
 
   const handleDecline = async () => {
     try {
-      await onDecline(); // Assuming onDecline returns a promise
-      handleClose(); // Close the modal on success
+      await onDecline(); 
+      handleClose(); 
     } catch (error) {
       console.error('Decline failed:', error);
-      // Optionally handle the error, e.g., by showing an error message
     }
   };
 
