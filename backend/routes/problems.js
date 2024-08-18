@@ -6,7 +6,7 @@ import {
     getProblems, createProblem, declineProblem, getPendingProblemById,
     createPendingProblem, getProblemById, getPendingProblem
 } from "../controllers/problems-controller.js";
-import { submitCode, runCode } from "../controllers/submission-controller.js";
+import { submitCode, runCode, getSubmissions } from "../controllers/submission-controller.js";
 
 const router = express.Router();
 
@@ -18,6 +18,7 @@ router.get("/get-pending-problem", verifyToken, adminOnly, getPendingProblem);
 router.post("/decline-pending-problem", declineProblem);
 
 router.post("/submit-code", verifyToken, floodControlMiddleware, submitCode);
+router.get("/get-submissions", verifyToken, getSubmissions);
 router.post("/run-arena-code", checkToken, floodControlMiddleware, runCode);
 router.post("/run-playground-code", checkToken, floodControlMiddleware, runCode);
 
