@@ -35,7 +35,7 @@ const Input = ({ open, onClose, onTest, value, onChange }) => {
         placeholder="Enter custom input here"
         value={value}
         onChange={onChange}
-        sx={{ backgroundColor: 'black', color: "white" }} // Adjust styling for text color
+        sx={{ backgroundColor: 'black', color: "white" }} 
       />
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 2 }}>
         <Button

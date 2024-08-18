@@ -83,17 +83,17 @@ const ForgotPassword = () => {
               sx={{
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": {
-                    borderColor: "gray", // Default border color
+                    borderColor: "gray", 
                   },
                   "&:hover fieldset": {
-                    borderColor: "gray", // Hover border color
+                    borderColor: "gray", 
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "white", // White outline on focus
+                    borderColor: "white", 
                   },
                 },
                 "& .MuiFormLabel-root.Mui-focused": {
-                  color: "white", // White label color when focused
+                  color: "white", 
                 },
               }}
             />

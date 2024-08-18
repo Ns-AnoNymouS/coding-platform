@@ -54,11 +54,10 @@ const AdminPage = () => {
 
     fetchProblems();
     fetchTestCases();
-  }, [refreshFlag]); // Re-fetch data when refreshFlag changes
+  }, [refreshFlag]); 
 
-  // Function to trigger a refresh
   const triggerRefresh = () => {
-    setRefreshFlag((prev) => !prev); // Toggle the refreshFlag state
+    setRefreshFlag((prev) => !prev); 
   };
 
   return (
@@ -94,7 +93,7 @@ const AdminPage = () => {
         {(testCasesData && testCasesData.length > 0) ? (
           <TestCaseTable
             testCases={testCasesData}
-            onRefresh={triggerRefresh} // Pass the refresh function as a prop
+            onRefresh={triggerRefresh} 
           />
         ) : (
           <Typography>No Test Cases Data To Display</Typography>

@@ -225,17 +225,16 @@ const CodingArena = () => {
 
   const handleCustomInputTest = async () => {
     if (isLoggedIn) {
-      const customInput = customInputValue; // Get the custom input value from your state or form
+      const customInput = customInputValue; 
 
-      // Construct the data object for the request
       const data = {
         language: language.value,
         code: btoa(code),
-        input: btoa(customInput), // Encode custom input
-        expectedOutput: "", // Assuming no expected output for custom input testing
+        input: btoa(customInput), 
+        expectedOutput: "", 
       };
 
-      setLoading({ run: true, submit: false, save: false }); // Start loading
+      setLoading({ run: true, submit: false, save: false }); 
 
       try {
         const response = await axios.post(
@@ -249,16 +248,15 @@ const CodingArena = () => {
           }
         );
 
-        // Handle the response
         const result = {
           input: customInput,
           output: response.data.output,
-          expectedOutput: "", // No expected output
+          expectedOutput: "", 
           passed: response.data.passed,
         };
 
-        setOutputData([result]); // Set the output data for custom input
-        setOutputVisible(true); // Show the output
+        setOutputData([result]); 
+        setOutputVisible(true); 
       } catch (error) {
         console.error("Error running custom input:", error);
         setOutputData({
@@ -268,7 +266,7 @@ const CodingArena = () => {
           message: "An error occurred while running the custom input.",
           passed: "0/1",
         });
-        setOutputVisible(true); // Show the output with error message
+        setOutputVisible(true); 
       } finally {
         setLoading({
           run: false,
@@ -277,7 +275,7 @@ const CodingArena = () => {
         });
       }
     } else {
-      setShowModal(true); // Show login modal if not logged in
+      setShowModal(true); 
     }
   };
 
@@ -644,7 +642,7 @@ const CodingArena = () => {
               cursor: "pointer",
               color: "black",
             },
-            position: "relative", // For positioning the spinner
+            position: "relative", 
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
