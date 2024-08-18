@@ -132,14 +132,6 @@ const submitCode = async (req, res) => {
         let { language, code, problemNumber } = req.body;
         code = atob(code);
 
-        if (!req.user) {
-            return res.status(400).json({
-                status: "Failed",
-                message: "User login required.",
-                output: "User login required."
-            });
-        }
-
         // Validate the input
         if (!language || !code || !problemNumber) {
             return res.status(400).json({
@@ -219,6 +211,72 @@ const submitCode = async (req, res) => {
     }
 };
 
+const submitContestCode = async (req, res) => {
+    try {
+        const user_id = req.user.user._id;
+        let { language, code, problemNumber, contestId } = req.body;
+        code = atob(code);
+
+        if (!req.user) {
+            return res.status(400).json({
+                status: "Failed",
+                message: "User login required.",
+                output: "User login required."
+            });
+        }
+
+        // Validate the input
+        if (!language || !code || !problemNumber) {
+            return res.status(400).json({
+                status: "Failed",
+                message: "All fields are required: language, code, problemNumber",
+                output: "All fields are required: language, code, problemNumber"
+            });
+        }
+
+        const problemData = await Problem.findOne({ problemNumber }).exec();
+        const testCaseId = problemData.testCaseId;
+
+        const testCaseData = await TestCase.findOne({ _id: testCaseId });
+        if (!testCaseData) {
+            return res.status(400).json({
+                status: "Failed",
+                message: "Test case not found",
+                output: "Test case not found"
+            });
+        }
+
+        const testCases = testCaseData.givenInput.map((input, index) => ({
+            input,
+            expectedOutput: testCaseData.correctOutput[index]
+        }));
+        for (const [index, { input, expectedOutput }] of testCases.entries()) {
+            const response = await _runCode(language, code, input, expectedOutput);
+            if (response.status == "Failed") {
+                let verdict = "";
+                if (response.message == "timeout") {
+                    verdict = "TIMELIMITED ERROR";
+                } else if (response.message == "Memory limit exceeded") {
+                    verdict = "MEMORY ERROR";
+                } else if (response.message == "wrong") {
+                    verdict = "WRONG ANSWER";
+                } else {
+                    verdict = "ERROR";
+                }
+
+                if (verdict != "ERROR") {
+                    const newSubmission = new Submission(
+                        {
+                            user: user_id, problem: problemNumber, code: code, language: language
+                        })
+                }
+            }
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 const runCode = async (req, res) => {
     try {
 
@@ -287,7 +345,7 @@ const getSubmissions = async (req, res) => {
         }
         const user_id = req.user.user._id;
         const submissions = await Submission.find({ user: user_id, problem: problemNumber }).sort({ submittedAt: -1 });
-        res.status(200).json({status: "ok", data: submissions});
+        res.status(200).json({ status: "ok", data: submissions });
     } catch (err) {
         console.error(err);
         res.status(500).json({ status: "unsucessful", data: "Internal Server Error" });

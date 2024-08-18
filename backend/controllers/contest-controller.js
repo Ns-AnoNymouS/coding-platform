@@ -62,10 +62,11 @@ const getContest = async (req, res) => {
             .skip((page - 1) * limit);
 
         const updatedContest = contest.map(item => {
+            const participants = item.participants || [];
             return {
                 ...item._doc,  // Spread the original document's properties
                 isHost: item.host == userId, // Add the isHost key
-                isRegistered: item.participants.includes(userId),
+                isRegistered: participants.includes(userId),
             };
         });
 
