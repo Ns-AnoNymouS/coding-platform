@@ -5,28 +5,44 @@ import ContestTable from "../components/contest/ContestTable";
 
 const Contest = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentContests, setCurrentContests] = useState([]);
-  const [pastContests, setPastContests] = useState([]);
+  const [contests, setContests] = useState({ current: [], past: [] });
+  const [loading, setLoading] = useState(true);
 
   const fetchContests = async () => {
     try {
-      const [currentResponse, pastResponse] = await Promise.all([
-        axios.get("http://localhost:6969/current-contests", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+      setLoading(true);
+
+      // Fetching contests
+      const [upcomingResponse, ongoingResponse, pastResponse] = await Promise.all([
+        axios.get("http://localhost:6969/all-contest", {
+          params: { type: "upcoming" },
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         }),
-        axios.get("http://localhost:6969/past-contests", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+        axios.get("http://localhost:6969/all-contest", {
+          params: { type: "ongoing" },
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }),
+        axios.get("http://localhost:6969/all-contest", {
+          params: { type: "previous" },
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         })
       ]);
 
-      setCurrentContests(currentResponse.data);
-      setPastContests(pastResponse.data);
+      // Merge ongoing and upcoming contests into the current category
+      const allContests = [
+        ...upcomingResponse.data,
+        ...ongoingResponse.data
+      ];
+
+      setContests({
+        current: allContests,
+        past: pastResponse.data
+      });
+
     } catch (error) {
       console.error("Error fetching contests:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,11 +54,11 @@ const Contest = () => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredCurrentContests = currentContests.filter((contest) =>
+  const filteredCurrentContests = contests.current.filter((contest) =>
     contest.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredPastContests = pastContests.filter((contest) =>
+  const filteredPastContests = contests.past.filter((contest) =>
     contest.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -90,7 +106,7 @@ const Contest = () => {
       </Box>
       <ContestTable 
         columns={currentContestColumns} 
-        rows={filteredCurrentContests.map(contest => ({
+        rows={contests.current.map(contest => ({
           ...contest,
           register: contest.registered ? "Registered" : "Register"
         }))} 
@@ -103,7 +119,7 @@ const Contest = () => {
       </Typography>
       <ContestTable 
         columns={pastContestColumns} 
-        rows={filteredPastContests} 
+        rows={contests.past} 
         titleAsLink={true} 
       />
     </Container>
