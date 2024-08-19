@@ -2,6 +2,7 @@ import React from "react";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Link, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
+import { useNavigate } from "react-router-dom";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -22,7 +23,13 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const TableComponent = ({ columns, rows, titleAsLink, registrationStatus }) => {
+const TableComponent = ({ columns, rows }) => {
+  const navigate = useNavigate();
+
+  const handleContestClick = (contestNumber) => {
+    navigate(`/contest/${contestNumber}`);
+  };
+
   return (
     <TableContainer
       component={Paper}
@@ -41,13 +48,7 @@ const TableComponent = ({ columns, rows, titleAsLink, registrationStatus }) => {
                 align={column.align || "left"}
                 sx={{ width: column.width || 'auto' }} // Apply variable width
               >
-                {column.id === "title" && titleAsLink ? (
-                  <Link href="#" color="inherit" underline="none">
-                    {column.label}
-                  </Link>
-                ) : (
-                  column.label
-                )}
+                {column.label}
               </StyledTableCell>
             ))}
           </TableRow>
@@ -61,17 +62,22 @@ const TableComponent = ({ columns, rows, titleAsLink, registrationStatus }) => {
                   align={column.align || "left"}
                   sx={{ width: column.width || 'auto' }} // Apply variable width
                 >
-                  {(column.id === "name" || column.id === "title") && titleAsLink ? (
-                    <Link href="#" color="inherit" underline="none">
+                  {column.id === "contestTitle" ? (
+                    <Link
+                      href="#"
+                      color="inherit"
+                      underline="none"
+                      onClick={() => handleContestClick(row._id)}
+                    >
                       {row[column.id]}
                     </Link>
                   ) : column.id === "register" ? (
                     <Button
                       variant="contained"
-                      disabled={registrationStatus}
-                      sx={{ backgroundColor: registrationStatus ? '#f5f5f5' : '#1976d2', color: '#000' }}
+                      disabled={row.isRegistered}
+                      sx={{ backgroundColor: row.isRegistered ? '#f5f5f5' : '#1976d2', color: '#000' }}
                     >
-                      {registrationStatus ? "Registered" : "Register"}
+                      {row.isRegistered ? "Registered" : "Register"}
                     </Button>
                   ) : (
                     row[column.id]

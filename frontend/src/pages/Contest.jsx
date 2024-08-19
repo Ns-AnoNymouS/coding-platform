@@ -1,46 +1,70 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Box, Typography, Container, Button, TextField } from "@mui/material";
-import ContestTable from "../components/contest/ContestTable";
+import {
+  Box,
+  Typography,
+  Container,
+  Button,
+  TextField,
+  Pagination,
+  PaginationItem,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Link, // Import Link for navigation
+} from "@mui/material";
+import TableComponent from "../components/contest/ContestTable";
 import { useNavigate } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import debounce from "lodash.debounce";
 
 const Contest = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [contests, setContests] = useState({ current: [], past: [] });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [totContests, setTotContests] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
 
   const fetchContests = async () => {
     try {
       setLoading(true);
 
-      // Fetching contests
-      const [upcomingResponse, ongoingResponse, pastResponse] = await Promise.all([
-        axios.get("http://localhost:6969/all-contest", {
-          params: { type: "upcoming" },
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }),
-        axios.get("http://localhost:6969/all-contest", {
-          params: { type: "ongoing" },
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }),
-        axios.get("http://localhost:6969/all-contest", {
-          params: { type: "previous" },
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        })
-      ]);
+      const [upcomingResponse, ongoingResponse, pastResponse] =
+        await Promise.all([
+          axios.get("http://localhost:6969/all-contest", {
+            params: { type: "upcoming" },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }),
+          axios.get("http://localhost:6969/all-contest", {
+            params: { type: "ongoing" },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }),
+          axios.get("http://localhost:6969/all-contest", {
+            params: { type: "previous", limit: rowsPerPage, page: page + 1 },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }),
+        ]);
 
-      // Merge ongoing and upcoming contests into the current category
       const allContests = [
         ...upcomingResponse.data.data,
-        ...ongoingResponse.data.data
+        ...ongoingResponse.data.data,
       ];
 
       setContests({
         current: allContests,
-        past: pastResponse.data.data
+        past: pastResponse.data.data,
       });
-
+      setTotContests(pastResponse.data.data.length);
     } catch (error) {
       console.error("Error fetching contests:", error);
     } finally {
@@ -48,12 +72,25 @@ const Contest = () => {
     }
   };
 
+  const debouncedFetchProblems = useCallback(
+    debounce(() => {
+      fetchContests();
+    }, 500),
+    [rowsPerPage, page]
+  );
   useEffect(() => {
-    fetchContests();
-  }, []);
+    debouncedFetchProblems();
+    return () => {
+      debouncedFetchProblems.cancel();
+    };
+  }, [debouncedFetchProblems]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
+  };
+
+  const handleRegisterClick = (contestId) => {
+    console.log(`Registering for contest with ID: ${contestId}`);
   };
 
   const filteredCurrentContests = contests.current.filter((contest) =>
@@ -79,6 +116,44 @@ const Contest = () => {
     { id: "standings", label: "Standings", align: "right" },
   ];
 
+  const currentContestRows = filteredCurrentContests.map((contest) => ({
+    ...contest,
+    start: new Date(contest.schedule.start).toLocaleString(),
+    end: new Date(contest.schedule.end).toLocaleString(),
+    register: contest.isRegistered ? (
+      "Registered"
+    ) : (
+      <Button
+        variant="contained"
+        onClick={() => handleRegisterClick(contest._id)}
+        sx={{
+          color: "white",
+          backgroundColor: "gray",
+          "&:hover": {
+            backgroundColor: "#a9a9a9",
+          },
+          textTransform: "none",
+        }}
+      >
+        Register
+      </Button>
+    ),
+  }));
+
+  const pastContestRows = filteredPastContests.map((contest) => ({
+    ...contest,
+    hostedDate: new Date(contest.schedule.start).toLocaleDateString(),
+    standings: (
+      <Link
+        href={`/contest/${contest._id}/standings`} // Adjust the URL based on your routing setup
+        color="inherit"
+        underline="hover"
+      >
+        View Standings
+      </Link>
+    ),
+  }));
+
   return (
     <Container>
       <Box p={2}>
@@ -86,51 +161,79 @@ const Contest = () => {
           Contests
         </Typography>
       </Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
         <TextField
           variant="outlined"
           placeholder="Search contests..."
           value={searchTerm}
           onChange={handleSearchChange}
-          sx={{ width: '70%' }} 
+          sx={{ width: "70%" }}
         />
         <Button
           variant="contained"
-          sx={{ backgroundColor: '#f5f5f5', color: '#000', marginLeft: 2 }}
-          onClick={() => navigate('/create-contest')}
+          sx={{ backgroundColor: "#f5f5f5", color: "#000", marginLeft: 2 }}
+          onClick={() => navigate("/create-contest")}
         >
           Add Contest
         </Button>
       </Box>
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h6" display={"block"} textAlign={"left"} gutterBottom>
+        <Typography
+          variant="h6"
+          display={"block"}
+          textAlign={"left"}
+          gutterBottom
+        >
           Current or Upcoming Contests
         </Typography>
       </Box>
-      <ContestTable 
-        columns={currentContestColumns} 
-        rows={filteredCurrentContests.map(contest => ({
-          ...contest,
-          start: new Date(contest.schedule.start).toLocaleString(),
-          end: new Date(contest.schedule.end).toLocaleString(),
-          register: contest.isHost ? "Host" : "Register"
-        }))} 
-        titleAsLink={true} 
-        registrationStatus={true} 
+      <TableComponent
+        columns={currentContestColumns}
+        rows={currentContestRows}
+        registrationStatus={true}
       />
       <Box mt={4} />
-      <Typography variant="h6" display={"block"} textAlign={"left"} gutterBottom>
+      <Typography
+        variant="h6"
+        display={"block"}
+        textAlign={"left"}
+        gutterBottom
+      >
         Past Contests
       </Typography>
-      <ContestTable 
-        columns={pastContestColumns} 
-        rows={filteredPastContests.map(contest => ({
-          ...contest,
-          hostedDate: new Date(contest.schedule.start).toLocaleDateString(), // Adjust date format
-          standings: "View Standings" // Placeholder text
-        }))} 
-        titleAsLink={true} 
-      />
+      <TableComponent columns={pastContestColumns} rows={pastContestRows} />
+      <Box className="flex items-center justify-between mt-4">
+        <Pagination
+          count={Math.ceil(totContests / rowsPerPage)}
+          page={page + 1}
+          onChange={(event, value) => setPage(value - 1)}
+          renderItem={(item) => (
+            <PaginationItem
+              slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+              {...item}
+            />
+          )}
+        />
+        <FormControl variant="outlined" size="small" className="ml-4 w-28">
+          <InputLabel id="rows-per-page-label">Rows per page</InputLabel>
+          <Select
+            labelId="rows-per-page-label"
+            value={rowsPerPage}
+            onChange={(e) => setRowsPerPage(Number(e.target.value))}
+            label="Rows per page"
+          >
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
+            <MenuItem value={100}>100</MenuItem>
+            <MenuItem value={200}>200</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
     </Container>
   );
 };
