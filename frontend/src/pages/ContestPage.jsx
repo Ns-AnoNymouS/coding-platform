@@ -58,10 +58,12 @@ const Page = () => {
     // Example: window.location.href = '/login';
   };
 
+  // Define columns for problems table
   const problemColumns = [
-    { id: "contestNumber", label: "ID" },
+    { id: "id", label: "ID" },
     { id: "title", label: "Title" },
-    { id: "score", label: "Score", align: "right" },
+    { id: "positive", label: "Positive Points", align: "right" },
+    { id: "negative", label: "Negative Points", align: "right" },
   ];
 
   const scoreboardColumns = [
@@ -70,7 +72,13 @@ const Page = () => {
     { id: "finishTime", label: "Finish Time" },
   ];
 
-  const problemRows = contestData?.questions || []; // Adjust based on your data structure
+  // Extract rows from the questions in contestData
+  const problemRows = contestData?.questions?.map((question, index) => ({
+    id: index + 1,  // Auto-incrementing ID
+    title: question?.title,  // Access title safely
+    positive: question?.points?.positive,  // Access points safely
+    negative: question?.points?.negative,  // Access points safely
+  })) || [];  
 
   const getFinishTime = (finishTime) => finishTime || "Running";
 
@@ -79,6 +87,7 @@ const Page = () => {
       ...row,
       finishTime: getFinishTime(row.finishTime),
     }));
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -108,6 +117,7 @@ const Page = () => {
                 <Typography variant="h6" gutterBottom>
                   Scoreboard
                 </Typography>
+                {/* Assuming scoreboard data would be handled similarly */}
                 <TableComponent 
                   columns={scoreboardColumns} 
                   rows={scoreboardRows} 

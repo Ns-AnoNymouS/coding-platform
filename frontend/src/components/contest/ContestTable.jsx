@@ -1,5 +1,15 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Link, Button } from "@mui/material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Link,
+  Button,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +46,7 @@ const TableComponent = ({ columns, rows }) => {
       sx={{
         border: "1px solid rgba(255, 255, 255, 0.2)",
         borderRadius: "8px",
-        overflow: 'hidden',
+        overflow: "hidden",
       }}
     >
       <Table aria-label="customized table">
@@ -46,7 +56,7 @@ const TableComponent = ({ columns, rows }) => {
               <StyledTableCell
                 key={index}
                 align={column.align || "left"}
-                sx={{ width: column.width || 'auto' }} // Apply variable width
+                sx={{ width: column.width || "auto" }} // Apply variable width
               >
                 {column.label}
               </StyledTableCell>
@@ -60,18 +70,8 @@ const TableComponent = ({ columns, rows }) => {
                 <StyledTableCell
                   key={colIndex}
                   align={column.align || "left"}
-                  sx={{ width: column.width || 'auto' }} 
+                  sx={{ width: column.width || "auto" }}
                 >
-                  {column.id === "contestNumber" && (
-                    <Link
-                      href="#"
-                      color="inherit"
-                      underline="none"
-                      onClick={() => handleContestClick(row._id)}
-                    >
-                      {index+1}
-                    </Link>
-                  )}
                   {column.id === "contestTitle" ? (
                     <Link
                       href="#"
@@ -85,7 +85,17 @@ const TableComponent = ({ columns, rows }) => {
                     <Button
                       variant="contained"
                       disabled={row.isRegistered}
-                      sx={{ backgroundColor: row.isRegistered ? 'gray' : 'lightgreen', color: '#000', "&:hover": {cursor: "pointer", backgroundColor: 'green', color:'white'} }}
+                      sx={{
+                        backgroundColor: row.isRegistered
+                          ? "gray"
+                          : "lightgreen",
+                        color: "#000",
+                        "&:hover": {
+                          cursor: "pointer",
+                          backgroundColor: "green",
+                          color: "white",
+                        },
+                      }}
                     >
                       {row.isRegistered ? "Registered" : "Register"}
                     </Button>
