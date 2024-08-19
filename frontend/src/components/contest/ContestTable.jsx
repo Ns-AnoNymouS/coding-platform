@@ -72,16 +72,6 @@ const TableComponent = ({ columns, rows }) => {
                   align={column.align || "left"}
                   sx={{ width: column.width || "auto" }}
                 >
-                  {column.id === "contestNumber" && (
-                    <Link
-                      href="#"
-                      color="inherit"
-                      underline="none"
-                      onClick={() => handleContestClick(row._id)}
-                    >
-                      {index + 1}
-                    </Link>
-                  )}
                   {column.id === "contestTitle" ? (
                     <Link
                       href="#"
