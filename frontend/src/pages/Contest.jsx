@@ -12,7 +12,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Link, // Import Link for navigation
+  Link, 
 } from "@mui/material";
 import TableComponent from "../components/contest/ContestTable";
 import { useNavigate } from "react-router-dom";
@@ -127,7 +127,7 @@ const Contest = () => {
     hostedDate: new Date(contest.schedule.start).toLocaleDateString(),
     standings: (
       <Link
-        href={`/contest/${contest._id}/standings`} // Adjust the URL based on your routing setup
+        href={`/contest/${contest._id}/standings`} 
         color="inherit"
         underline="hover"
       >
