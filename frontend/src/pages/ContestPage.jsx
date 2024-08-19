@@ -36,11 +36,11 @@ const Page = () => {
       const fetchContestData = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(`http://localhost:6969//get-contest-question/${contestId}`, {
+          const response = await axios.get(`http://localhost:6969/get-contest-question/${contestId}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
           });
-          console.log(response.data)
-          setContestData(response.data);
+          console.log(response.data.data)
+          setContestData(response.data.data);
         } catch (error) {
           console.error("Error fetching contest data:", error);
         } finally {
@@ -59,7 +59,7 @@ const Page = () => {
   };
 
   const problemColumns = [
-    { id: "id", label: "ID" },
+    { id: "contestNumber", label: "ID" },
     { id: "title", label: "Title" },
     { id: "score", label: "Score", align: "right" },
   ];
@@ -70,7 +70,7 @@ const Page = () => {
     { id: "finishTime", label: "Finish Time" },
   ];
 
-  const problemRows = contestData?.problems || []; // Adjust based on your data structure
+  const problemRows = contestData?.questions || []; // Adjust based on your data structure
 
   const getFinishTime = (finishTime) => finishTime || "Running";
 
@@ -87,7 +87,7 @@ const Page = () => {
           <>
             <Box p={3}>
               <Typography variant="h4" display={"block"} textAlign={"center"} gutterBottom>
-                Contest Name: {contestData?.title} {/* Displaying contest title */}
+                {contestData?.contestTitle} {/* Displaying contest title */}
               </Typography>
               <Typography variant="body1" color="textSecondary">
                 {contestData?.description} {/* Displaying contest description */}
