@@ -5,6 +5,7 @@ import TableComponent from "../components/contest/ContestTable";
 import LoginModal from "../components/modals/LoginModal";
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import Navbar from "../components/Navbar";
 
 // Dark theme setup
 const theme = createTheme({
@@ -91,6 +92,7 @@ const Page = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <Navbar />
       <Container>
         {isLoggedIn ? (
           <>
