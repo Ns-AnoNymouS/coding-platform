@@ -120,24 +120,6 @@ const Contest = () => {
     ...contest,
     start: new Date(contest.schedule.start).toLocaleString(),
     end: new Date(contest.schedule.end).toLocaleString(),
-    register: contest.isRegistered ? (
-      "Registered"
-    ) : (
-      <Button
-        variant="contained"
-        onClick={() => handleRegisterClick(contest._id)}
-        sx={{
-          color: "white",
-          backgroundColor: "gray",
-          "&:hover": {
-            backgroundColor: "#a9a9a9",
-          },
-          textTransform: "none",
-        }}
-      >
-        Register
-      </Button>
-    ),
   }));
 
   const pastContestRows = filteredPastContests.map((contest) => ({
@@ -176,7 +158,15 @@ const Contest = () => {
         />
         <Button
           variant="contained"
-          sx={{ backgroundColor: "#f5f5f5", color: "#000", marginLeft: 2 }}
+          sx={{
+            backgroundColor: "#f5f5f5", // Light gray background
+            color: "#000", // Black text
+            marginLeft: 2,
+            "&:hover": {
+              backgroundColor: "#a1a1a1", // Custom zinc color on hover
+              color: "#000", // White text on hover
+            },
+          }}
           onClick={() => navigate("/create-contest")}
         >
           Add Contest
@@ -195,7 +185,6 @@ const Contest = () => {
       <TableComponent
         columns={currentContestColumns}
         rows={currentContestRows}
-        registrationStatus={true}
       />
       <Box mt={4} />
       <Typography

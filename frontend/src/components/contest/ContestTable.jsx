@@ -75,7 +75,7 @@ const TableComponent = ({ columns, rows }) => {
                     <Button
                       variant="contained"
                       disabled={row.isRegistered}
-                      sx={{ backgroundColor: row.isRegistered ? '#f5f5f5' : '#1976d2', color: '#000' }}
+                      sx={{ backgroundColor: row.isRegistered ? 'gray' : 'lightgreen', color: '#000', "&:hover": {cursor: "pointer", backgroundColor: 'green', color:'white'} }}
                     >
                       {row.isRegistered ? "Registered" : "Register"}
                     </Button>
