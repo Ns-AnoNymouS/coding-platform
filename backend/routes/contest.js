@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router.get("/all-contest", checkToken, getContest);
-router.get("/get-contest-question", checkToken, getContestQuestions);
+router.get("/get-contest-question/:contestId", checkToken, getContestQuestions);
 router.get("/get-contest-question-by-id", checkToken, getContestQuestionById);
 router.post("/create-contest", verifyToken, createContest);
 router.post("/register-contest", verifyToken, registerContest);

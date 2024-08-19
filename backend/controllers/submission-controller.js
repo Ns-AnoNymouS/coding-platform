@@ -216,21 +216,13 @@ const submitContestCode = async (req, res) => {
         const user_id = req.user.user._id;
         let { language, code, problemNumber, contestId } = req.body;
         code = atob(code);
-
-        if (!req.user) {
-            return res.status(400).json({
-                status: "Failed",
-                message: "User login required.",
-                output: "User login required."
-            });
-        }
-
+        
         // Validate the input
         if (!language || !code || !problemNumber) {
             return res.status(400).json({
                 status: "Failed",
-                message: "All fields are required: language, code, problemNumber",
-                output: "All fields are required: language, code, problemNumber"
+                message: "All fields are required: language, code, problemNumber, contestId",
+                output: "All fields are required: language, code, problemNumber, contestId"
             });
         }
 
@@ -352,5 +344,5 @@ const getSubmissions = async (req, res) => {
     }
 }
 
-export { submitCode, runCode, getSubmissions };
+export { submitCode, runCode, getSubmissions, submitContestCode };
 
