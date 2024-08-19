@@ -177,7 +177,7 @@ const createContestQuestion = async (req, res) => {
 
 const getContestQuestions = async (req, res) => {
     try {
-        const { contestId } = req.query;
+        const { contestId } = req.params;
         const user = req.user.user || {};
         const userId = user._id;
 
