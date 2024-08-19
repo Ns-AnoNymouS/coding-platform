@@ -166,6 +166,7 @@ const Contest = () => {
               backgroundColor: "#a1a1a1", // Custom zinc color on hover
               color: "#000", // White text on hover
             },
+            textTransform: "none"
           }}
           onClick={() => navigate("/create-contest")}
         >

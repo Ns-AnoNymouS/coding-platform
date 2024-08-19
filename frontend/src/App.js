@@ -7,7 +7,6 @@ import ForgotPassword from "./pages/forgotPassword";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Problems from "./pages/Problems";
-import Contests from "./pages/Contests";
 import CodingArena from "./pages/CodingArena";
 import CodingPlayGround from "./pages/CodingPlayground";
 import ContestForm from "./pages/ContestForm";
