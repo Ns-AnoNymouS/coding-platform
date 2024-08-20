@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import LoginModal from "../components/modals/LoginModal";
 import { io } from "socket.io-client";
@@ -29,12 +29,12 @@ const Page = () => {
   const { "contest-id": contestId } = useParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [contestData, setContestData] = useState(null);
+  const [contestData, setContestData] = useState({});
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(null);
   const [contestState, setContestState] = useState(null);
-  const location = useLocation();
-  const { startTime, endTime } = location.state || {};
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
   const navigate = useNavigate();
   const SOCKET_SERVER_URL = "http://localhost:6969";
 
@@ -51,7 +51,6 @@ const Page = () => {
       socket.disconnect();
     };
   }, []);
-
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -76,7 +75,10 @@ const Page = () => {
               },
             }
           );
-          setContestData(response.data.data);
+          const contestData = response.data.data;
+          setContestData(contestData);
+          setStartTime(contestData.schedule.start);
+          setEndTime(contestData.schedule.end);
         } catch (error) {
           console.error("Error fetching contest data:", error);
         } finally {
@@ -116,7 +118,7 @@ const Page = () => {
 
       return () => clearInterval(intervalId);
     }
-  }, []);
+  }, [startTime, endTime]);
 
   const formatTime = (timeDifference) => {
     const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
