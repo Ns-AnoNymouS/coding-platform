@@ -103,6 +103,7 @@ const Page = () => {
   }, [startTime, endTime]);
 
   const formatTime = (timeDifference) => {
+    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
     const hours = Math.floor(
       (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
     );
@@ -110,7 +111,8 @@ const Page = () => {
       (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
     );
     const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-    return `${hours}h ${minutes}m ${seconds}s`;
+
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
   };
 
   const handleModalClose = () => {
@@ -134,13 +136,18 @@ const Page = () => {
     contestData?.questions?.map((question, index) => ({
       id: index + 1,
       title: (
-        <Link
-          href={`/contest/${contestId}/${question.id}`}
-          color="inherit"
-          underline="hover"
+        <Button
+          onClick={() =>
+            navigate(`/contest/${contestId}/${question.id}`, {
+              state: {
+                startTime: startTime,
+                endTime: endTime,
+              },
+            })
+          }
         >
           {question.title}
-        </Link>
+        </Button>
       ),
       positive: question?.points?.positive,
       negative: question?.points?.negative,

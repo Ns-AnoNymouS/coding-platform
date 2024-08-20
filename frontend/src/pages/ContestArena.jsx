@@ -1,11 +1,20 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Grid, Box, IconButton, Tabs, Tab, Button } from "@mui/material";
+import {
+  Grid,
+  Box,
+  IconButton,
+  Tabs,
+  Tab,
+  Button,
+  Typography,
+} from "@mui/material";
 import ProblemStatement from "../components/codingArena/ProblemStatement";
 import Solutions from "../components/codingArena/Solutions";
 import Submissions from "../components/codingArena/Submissions";
 import OutputModal from "../components/modals/OutputModal";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { customStyles } from "../constants/customStyles";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import axios from "axios";
 import { AuthContext } from "../AuthContext";
 import LoginModal from "../components/modals/LoginModal";
@@ -16,11 +25,15 @@ import LanguagesDropdown from "../components/Editor/LanguagesDropdown";
 import CodeEditorWindow from "../components/Editor/CodeEditorWindow";
 import { languageOptions } from "../constants/languageOptions";
 import Input from "../components/codingArena/Input";
+import CountdownTimer from "../components/contest/Timer";
+import { useNavigate } from "react-router-dom";
 
-const ContestArena = ({startTime, EndTime}) => {
+const ContestArena = () => {
   const [problemData, setProblemData] = useState({});
-  const [remainingTime, setRemainingTime] = useState("");
+  const navigate = useNavigate();
   const { "contest-id": contestId, problemNumber } = useParams();
+  const location = useLocation();
+  const { startTime, endTime } = location.state || {};
   const { isLoggedIn } = useContext(AuthContext);
   const [readyForRender, setReadyForRender] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
@@ -49,14 +62,14 @@ const ContestArena = ({startTime, EndTime}) => {
     const fetchProblemData = async () => {
       try {
         const response = await axios.get(
-            'http://localhost:6969/get-contest-question-by-id',
-            {
-              params: { questionId: problemNumber }, 
-              headers: { 
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-              }
-            }
-          );
+          "http://localhost:6969/get-contest-question-by-id",
+          {
+            params: { questionId: problemNumber },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
         if (response.data.status === "ok") {
           setProblemData(response.data.data);
@@ -105,7 +118,7 @@ const ContestArena = ({startTime, EndTime}) => {
             code: btoa(code),
             input: btoa(examples[0].givenInput[i]),
             expectedOutput: examples[0].correctOutput[i],
-            contestId: contestId
+            contestId: contestId,
           };
           setLoading({
             run: true,
@@ -223,13 +236,13 @@ const ContestArena = ({startTime, EndTime}) => {
   };
 
   const handleSubmitClick = async () => {
-    console.log(contestId)
+    console.log(contestId);
     if (isLoggedIn) {
       const data = {
         language: language.value,
         code: btoa(code),
         problemNumber: problemNumber,
-        contestId: contestId
+        contestId: contestId,
       };
 
       try {
@@ -372,25 +385,43 @@ const ContestArena = ({startTime, EndTime}) => {
               position: "relative",
             }}
           >
+            {/* Back Button and Tabs */}
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                flex: 1,
-                overflow: "hidden",
+                flexDirection: "row",
+                alignItems: "center",
+                padding: 1,
+                borderBottom: 1,
+                borderColor: "divider",
               }}
             >
+              <IconButton
+                onClick={() => navigate(`/contest/${contestId}`)}
+                sx={{
+                  color: "#ffffff",
+                  flexShrink: 0, // Prevent the back button from shrinking
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+
               <Box
                 sx={{
-                  borderBottom: 1,
-                  borderColor: "divider",
+                  flexGrow: 1,
+                  display: "flex",
+                  justifyContent: "center",
                 }}
               >
                 <Tabs
                   value={currentTab}
                   onChange={handleTabChange}
                   aria-label="Tabs for Problem, Solutions, and Submissions"
-                  sx={{ marginBottom: 2 }}
+                  sx={{
+                    marginBottom: 0, // Remove bottom margin
+                    minHeight: "auto", // Remove any default min-height
+                    padding: 0, // Remove any padding
+                  }}
                 >
                   <Tab
                     label="Problem"
@@ -405,7 +436,6 @@ const ContestArena = ({startTime, EndTime}) => {
                       },
                     }}
                   />
-
                   <Tab
                     label="Solutions"
                     sx={{
@@ -434,7 +464,17 @@ const ContestArena = ({startTime, EndTime}) => {
                   />
                 </Tabs>
               </Box>
+            </Box>
 
+            {/* Content */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                flex: 1,
+                overflow: "hidden",
+              }}
+            >
               <Box
                 sx={{
                   display: "flex",
@@ -497,19 +537,32 @@ const ContestArena = ({startTime, EndTime}) => {
             </Box>
           </Box>
         </Grid>
+
         <Grid item xs={12} md={6}>
-          <div className="flex flex-row">
-            <div className="px-4 py-2">
+          <Box
+            sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <CountdownTimer startTime={startTime} endTime={endTime} />
+              </Box>
               <LanguagesDropdown onSelectChange={onSelectChange} />
-            </div>
-          </div>
-          <div>
-            <CodeEditorWindow
-              code={code}
-              onChange={onChange}
-              language={language?.value}
-            />
-          </div>
+            </Box>
+            <Box sx={{ flex: 1, overflow: "auto" }}>
+              <CodeEditorWindow
+                code={code}
+                onChange={onChange}
+                language={language?.value}
+              />
+            </Box>
+          </Box>
         </Grid>
       </Grid>
       <Box

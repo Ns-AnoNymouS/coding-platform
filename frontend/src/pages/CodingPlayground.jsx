@@ -88,6 +88,9 @@ const CodingPlayGround = () => {
         "http://localhost:6969/run-playground-code",
         formData,
         {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          },
           validateStatus: (status) => status >= 200 && status < 500,
         }
       );

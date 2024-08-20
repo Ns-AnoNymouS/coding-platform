@@ -193,6 +193,7 @@ const Contest = () => {
                     <Link
                       color="inherit"
                       underline="none"
+                      className="hover:cursor-pointer hover:underline hover:text-blue-500"
                       onClick={() => handleContestClick(row)}
                     >
                       {row[column.id]}
