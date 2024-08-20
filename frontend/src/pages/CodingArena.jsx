@@ -4,7 +4,7 @@ import ProblemStatement from "../components/codingArena/ProblemStatement";
 import Solutions from "../components/codingArena/Solutions";
 import Submissions from "../components/codingArena/Submissions";
 import OutputModal from "../components/modals/OutputModal";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { customStyles } from "../constants/customStyles";
 import axios from "axios";
 import { AuthContext } from "../AuthContext";
@@ -16,9 +16,12 @@ import LanguagesDropdown from "../components/Editor/LanguagesDropdown";
 import CodeEditorWindow from "../components/Editor/CodeEditorWindow";
 import { languageOptions } from "../constants/languageOptions";
 import Input from "../components/codingArena/Input";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
 
 const CodingArena = () => {
   const [problemData, setProblemData] = useState({});
+  const navigate = useNavigate();
   const { problem_id } = useParams();
   const { isLoggedIn } = useContext(AuthContext);
   const [readyForRender, setReadyForRender] = useState(false);
@@ -430,22 +433,39 @@ const CodingArena = () => {
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                flex: 1,
-                overflow: "hidden",
+                flexDirection: "row",
+                alignItems: "center",
+                padding: 1,
+                borderBottom: 1,
+                borderColor: "divider",
               }}
             >
+              <IconButton
+                onClick={() => navigate(`/problems`)}
+                sx={{
+                  color: "#ffffff",
+                  flexShrink: 0, // Prevent the back button from shrinking
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+
               <Box
                 sx={{
-                  borderBottom: 1,
-                  borderColor: "divider",
+                  flexGrow: 1,
+                  display: "flex",
+                  justifyContent: "center",
                 }}
               >
                 <Tabs
                   value={currentTab}
                   onChange={handleTabChange}
                   aria-label="Tabs for Problem, Solutions, and Submissions"
-                  sx={{ marginBottom: 2 }}
+                  sx={{
+                    marginBottom: 0, // Remove bottom margin
+                    minHeight: "auto", // Remove any default min-height
+                    padding: 0, // Remove any padding
+                  }}
                 >
                   <Tab
                     label="Problem"
@@ -460,7 +480,6 @@ const CodingArena = () => {
                       },
                     }}
                   />
-
                   <Tab
                     label="Solutions"
                     sx={{
@@ -489,6 +508,7 @@ const CodingArena = () => {
                   />
                 </Tabs>
               </Box>
+            </Box>
 
               <Box
                 sx={{
@@ -550,7 +570,6 @@ const CodingArena = () => {
                 />
               )}
             </Box>
-          </Box>
         </Grid>
         <Grid item xs={12} md={6}>
           <div className="flex flex-row">
