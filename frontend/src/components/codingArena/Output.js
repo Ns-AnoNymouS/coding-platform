@@ -17,10 +17,11 @@ const Output = ({ results = [], onClose }) => {
     <Paper
       elevation={0}
       sx={{
-        height: "60vh",
-        overflowY: "auto",
+        maxHeight: "60vh",
+        overflowY: "hidden",
         position: "relative",
-        padding: 2,
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Box
@@ -30,6 +31,7 @@ const Output = ({ results = [], onClose }) => {
           justifyContent: "space-between",
           borderBottom: 1,
           borderColor: "divider",
+          paddingX: 2,
         }}
       >
         <Tabs
@@ -50,17 +52,20 @@ const Output = ({ results = [], onClose }) => {
           }}
         >
           {validResults.map((_, index) => (
-            <Tab
-              key={index}
-              label={`Test Case ${index + 1}`}
-            />
+            <Tab key={index} label={`Test Case ${index + 1}`} />
           ))}
         </Tabs>
         <IconButton sx={{ marginLeft: "auto" }} onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </Box>
-      <Box sx={{ padding: 2 }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflowY: "auto",
+          padding: 2,
+        }}
+      >
         {validResults.length === 0 ? (
           <Typography variant="body2">No results available.</Typography>
         ) : (
