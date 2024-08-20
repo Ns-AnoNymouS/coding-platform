@@ -250,10 +250,6 @@ const getContestQuestionById = async (req, res) => {
     const user = req.user.user || {};
     const userId = user._id;
 
-    if (!questionId) {
-      return res.status(400).json({ message: "questionId not found!" });
-    }
-
     const question = await ContestQuestions.findById(questionId);
     if (!question) {
       return res.status(404).json({
