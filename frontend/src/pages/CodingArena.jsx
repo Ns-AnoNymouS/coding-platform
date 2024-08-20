@@ -4,7 +4,7 @@ import ProblemStatement from "../components/codingArena/ProblemStatement";
 import Solutions from "../components/codingArena/Solutions";
 import Submissions from "../components/codingArena/Submissions";
 import OutputModal from "../components/modals/OutputModal";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { customStyles } from "../constants/customStyles";
 import axios from "axios";
 import { AuthContext } from "../AuthContext";
@@ -44,8 +44,9 @@ const CodingArena = () => {
   });
   const [customInputVisible, setCustomInputVisible] = useState(false);
   const [customInputValue, setCustomInputValue] = useState("");
-
   const { changeLanguage } = useLanguage(languageOptions[0]);
+  const location = useLocation();
+  const { solved } = location.state || {};
 
   useEffect(() => {
     const fetchProblemData = async () => {
@@ -409,6 +410,7 @@ const CodingArena = () => {
             tags={problemData.tags || []}
             outputVisible={outputVisible}
             difficulty={problemData.difficulty || ""}
+            solved = {solved}
           />
         ) : (
           <Box sx={{ padding: 2 }}>
