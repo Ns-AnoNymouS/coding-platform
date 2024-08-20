@@ -191,7 +191,6 @@ const Contest = () => {
                 >
                   {column.id === "contestTitle" ? (
                     <Link
-                      href="#"
                       color="inherit"
                       underline="none"
                       onClick={() => handleContestClick(row)}
