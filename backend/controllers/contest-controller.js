@@ -216,7 +216,7 @@ const getContestQuestions = async (req, res) => {
       contestTitle: contest.contestTitle,
       contestNumber: contest.contestNumber,
       description: contest.description,
-
+      schedule: contest.schedule,
       schedule: contest.schedule,
       isHost: contest.host == userId,
       isRegistered: contest.participants.some((participant) =>
