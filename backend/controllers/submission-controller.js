@@ -348,10 +348,10 @@ const submitContestCode = async (req, res) => {
 const runCode = async (req, res) => {
     try {
 
-        let { language, code, input, expectedOutput, problemNumber } = req.body;
+        let { language, code, input, expectedOutput, problemNumber, contestId } = req.body;
         code = atob(code);
         input = atob(input)
-        if (req.user && req.user.user && problemNumber) {
+        if (req.user && req.user.user && problemNumber && !contestId) {
             await SaveCode.findOneAndUpdate(
                 { user: req.user.user._id, problem: problemNumber, language: language },
                 {
@@ -407,12 +407,18 @@ const getFileExtension = (language) => {
 
 const getSubmissions = async (req, res) => {
     try {
-        const { problemNumber } = req.query;
+        const { problemNumber, contestId } = req.query;
         if (!problemNumber) {
             return res.status(400).json({ status: "unsucessful", data: "problemNumber is required" });
         }
         const user_id = req.user.user._id;
-        const submissions = await Submission.find({ user: user_id, problem: problemNumber }).sort({ submittedAt: -1 });
+        let submissions;
+        if (contestId){
+            submissions = await ContestSubmissions.find({ user: user_id, problem: problemNumber, contestId }).sort({ submittedAt: -1 });
+        }
+        else{
+            submissions = await Submission.find({ user: user_id, problem: problemNumber }).sort({ submittedAt: -1 });
+        }
         res.status(200).json({ status: "ok", data: submissions });
     } catch (err) {
         // console.error(err);
