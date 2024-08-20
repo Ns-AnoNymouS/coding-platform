@@ -54,16 +54,17 @@ const Page = () => {
     socket.emit('joinRoom', { contestId });
 
     socket.on("updateLeaderboard", async () => {
-      const response = await axios.get("http://localhost:6969/scoreboard", {
+      const response = await axios.get("http://localhost:6969/get-standings", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         params: {
+          contestId: contestId,
           page: scoreboardPage,
           limit: rowsPerPage,
         },
       });
-      setScoreboardRows(response.data);
+      setScoreboardRows(response.data.data);
     });
 
     return () => {
@@ -98,6 +99,17 @@ const Page = () => {
           setContestData(contestData);
           setStartTime(contestData.schedule.start);
           setEndTime(contestData.schedule.end);
+          const res = await axios.get("http://localhost:6969/get-standings", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            params: {
+              contestId: contestId,
+              page: scoreboardPage,
+              limit: rowsPerPage,
+            },
+          });
+          setScoreboardRows(res.data.data);
         } catch (error) {
           console.error("Error fetching contest data:", error);
         } finally {
@@ -190,13 +202,34 @@ const Page = () => {
       negative: question?.points?.negative,
     })) || [];
 
-  const formattedScoreboardRows =
+    const formattedScoreboardRows =
     Array.isArray(scoreboardRows) &&
-    scoreboardRows.map((row) => ({
-      name: row.name,
-      score: row.score,
-      finishTime: new Date(row.finishTime).toLocaleTimeString(),
-    })) || [];
+    scoreboardRows.map((row) => {
+      // Extract relevant dates
+      const startTime = new Date(row.schedule.start);
+      const lastSubmission = new Date(row.participants.lastSubmission);
+  
+      // Calculate duration
+      const duration = lastSubmission - startTime;
+  
+      // Format the duration
+      const hours = Math.floor(duration / (1000 * 60 * 60));
+      const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((duration % (1000 * 60)) / 1000);
+      
+      // Return the formatted row
+      return {
+        name: row.participants.username,
+        score: row.participants.score,
+        finishTime: (row.participants.lastSubmission)? `${hours}h ${minutes}m ${seconds}s` : "No submissions",
+      };
+    }) || [];
+  
+
+    const getNestedValue = (obj, path) => {
+      return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    };
+    
 
   const renderTable = (columns, rows) => (
     <TableContainer
@@ -226,7 +259,8 @@ const Page = () => {
             <TableRow key={rowIndex}>
               {columns.map((column) => (
                 <TableCell key={column.id} align={column.align || "left"}>
-                  {row[column.id]}
+                  {/* {row[column.id]} */}
+                  {getNestedValue(row, column.id)}
                 </TableCell>
               ))}
             </TableRow>

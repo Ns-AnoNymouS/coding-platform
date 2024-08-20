@@ -14,7 +14,6 @@ import Contest from '../models/contest-model.js';
 import { getSocketInstance } from '../sockets-initializer.js';
 
 const execPromise = util.promisify(exec);
-const io = getSocketInstance();
 
 const semaphore = new Semaphore(process.env.MAX_CONCURRENT_PROCESSES);
 
@@ -224,6 +223,7 @@ const submitCode = async (req, res) => {
 
 const submitContestCode = async (req, res) => {
     try {
+        const io = getSocketInstance();
         const user_id = req.user.user._id;
         let { language, code, problemNumber, contestId } = req.body;
         code = atob(code);

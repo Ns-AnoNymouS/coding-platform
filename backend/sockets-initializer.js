@@ -15,8 +15,7 @@ const initializeSocket = (server) => {
 
         socket.on('joinRoom', ({ contestId }) => {
             socket.join(contestId);
-            console.log(`${userId} joined room ${roomId}`);
-            // socket.to(roomId).emit('userJoined', { userId });
+            console.log(`user joined room ${contestId}`);
         });
 
         socket.on('disconnect', () => {
