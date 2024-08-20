@@ -54,7 +54,10 @@ const Schema = new mongoose.Schema(
                         type: Number,
                         default: 0, // Set a default score if none is provided
                         required: true,
-                    }
+                    }, lastSubmission: {
+                        type: Date,
+                        default: Date.now,
+                    },
                 }
             ],
         }
