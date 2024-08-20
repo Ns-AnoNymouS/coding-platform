@@ -11,13 +11,13 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Link,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import LoginModal from "../components/modals/LoginModal";
+import { io } from "socket.io-client";
 
 const theme = createTheme({
   palette: {
@@ -36,6 +36,22 @@ const Page = () => {
   const location = useLocation();
   const { startTime, endTime } = location.state || {};
   const navigate = useNavigate();
+  const SOCKET_SERVER_URL = "http://localhost:6969";
+
+  const [scoreboardRows, setScoreBoardRows] = useState([]);
+
+  useEffect(() => {
+    const socket = io(SOCKET_SERVER_URL);
+
+    socket.on("leaderboardUpdate", (updatedLeaderboard) => {
+      setScoreBoardRows(updatedLeaderboard);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -100,7 +116,7 @@ const Page = () => {
 
       return () => clearInterval(intervalId);
     }
-  }, [startTime, endTime]);
+  }, []);
 
   const formatTime = (timeDifference) => {
     const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
@@ -151,14 +167,6 @@ const Page = () => {
       ),
       positive: question?.points?.positive,
       negative: question?.points?.negative,
-    })) || [];
-
-  const getFinishTime = (finishTime) => finishTime || "Running";
-
-  const scoreboardRows =
-    contestData?.scoreboard?.map((row) => ({
-      ...row,
-      finishTime: getFinishTime(row.finishTime),
     })) || [];
 
   const renderTable = (columns, rows) => (
