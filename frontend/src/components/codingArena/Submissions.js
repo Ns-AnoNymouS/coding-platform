@@ -30,7 +30,7 @@ const Submissions = ({ submissions }) => {
   return (
     <Box sx={{ padding: 2 }}>
       {submissions.length > 0 ? (
-        <TableContainer component={Paper} sx={{ maxWidth: 1200, margin: '0 auto', borderRadius: '8px' }}>
+        <TableContainer component={Paper} sx={{ maxWidth: 1200, margin: '0 auto', borderRadius: '8px', maxHeight: '100vw', overflow: "scroll" }}>
           <Table>
             <TableHead>
               <TableRow>
