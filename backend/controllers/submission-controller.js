@@ -407,14 +407,19 @@ const getFileExtension = (language) => {
 
 const getSubmissions = async (req, res) => {
     try {
-        const { problemNumber, contestId } = req.query;
+        let { problemNumber, contestId } = req.query;
         if (!problemNumber) {
             return res.status(400).json({ status: "unsucessful", data: "problemNumber is required" });
         }
         const user_id = req.user.user._id;
         let submissions;
         if (contestId){
-            submissions = await ContestSubmissions.find({ user: user_id, problem: problemNumber, contestId }).sort({ submittedAt: -1 });
+            const problemData = await ContestQuestions.findById(problemNumber);
+            if (!problemData){
+                return res.status(200).json({ status: "unsucessful", data: "ProblemNumber not exists" });
+            }
+            problemNumber = problemData.problemNumber;
+            submissions = await ContestSubmissions.find({ user: user_id, problemNumber, contestId }).sort({ submittedAt: -1 });
         }
         else{
             submissions = await Submission.find({ user: user_id, problem: problemNumber }).sort({ submittedAt: -1 });
