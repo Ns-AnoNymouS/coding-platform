@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import {
   MenuItem,
   InputLabel,
@@ -6,26 +6,45 @@ import {
   Select,
   PaginationItem,
   Pagination,
-  Box
+  Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import axios from "axios";
 
-const Standings = () => {
+const Standings = ({ contestId }) => {
   const [totStandings, setTotStandings] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
+  const [leaderboardData, setLeaderboardData] = useState([]);
   const navigate = useNavigate();
-  const data = [
-    { name: "John Doe", age: 28, email: "john@example.com" },
-    { name: "Jane Smith", age: 34, email: "jane@example.com" },
-    { name: "Sam Green", age: 45, email: "sam@example.com" },
-  ];
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await axios.get("http://localhost:6969/get-leaderboard", {
+          params: {
+            contestId,
+            page: page + 1, // page number (1-indexed)
+            limit: rowsPerPage,
+          },
+        });
+
+        const { data } = response.data;
+        setLeaderboardData(data);
+        setTotStandings(response.data.totalCount); // Assuming your API returns total count
+      } catch (error) {
+        console.error("Error fetching leaderboard data:", error);
+      }
+    };
+
+    fetchLeaderboard();
+  }, [contestId, page, rowsPerPage]);
 
   const handleOpenContest = (contestNumber) => {
     navigate(`/contest/${contestNumber}`);
-  }
+  };
 
   return (
     <div
@@ -40,9 +59,11 @@ const Standings = () => {
           <div className="mt-12 flex flex-col items-center">
             <div className="w-full flex-1 mt-8">
               <div className="flex flex-col items-center">
-                <button className="text-2xl xl:text-3xl font-extrabold text-white"
-                onClick={handleOpenContest}>
-                  Log In
+                <button
+                  className="text-2xl xl:text-3xl font-extrabold text-white"
+                  onClick={() => handleOpenContest(contestId)}
+                >
+                  Go to Contest
                 </button>
                 <div className="w-full flex-1 mt-8">
                   <table className="min-w-full bg-gray-900 text-white border border-gray-700">
@@ -52,22 +73,28 @@ const Standings = () => {
                           Name
                         </th>
                         <th className="text-left py-3 px-4 uppercase font-semibold text-sm">
-                          Age
+                          Score
                         </th>
                         <th className="text-left py-3 px-4 uppercase font-semibold text-sm">
-                          Email
+                          Finish Time
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {data.map((row, index) => (
+                      {leaderboardData.map((row, index) => (
                         <tr
                           key={index}
                           className="bg-gray-800 hover:bg-gray-700"
                         >
-                          <td className="text-left py-3 px-4">{row.name}</td>
-                          <td className="text-left py-3 px-4">{row.age}</td>
-                          <td className="text-left py-3 px-4">{row.email}</td>
+                          <td className="text-left py-3 px-4">
+                            {row.participants.username}
+                          </td>
+                          <td className="text-left py-3 px-4">
+                            {row.participants.score}
+                          </td>
+                          <td className="text-left py-3 px-4">
+                            {new Date(row.participants.submittedAt).toLocaleString()}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
