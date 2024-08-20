@@ -19,22 +19,25 @@ const Standings = () => {
   const [page, setPage] = useState(0);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const navigate = useNavigate();
-  const {'contest-id': contestId} = useParams();
+  const { "contest-id": contestId } = useParams();
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const response = await axios.get("http://localhost:6969/get-standings", {
-          params: {
-            contestId,
-            page: page + 1, // page number (1-indexed)
-            limit: rowsPerPage,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:6969/get-standings",
+          {
+            params: {
+              contestId,
+              page: page + 1, // page number (1-indexed)
+              limit: rowsPerPage,
+            },
+          }
+        );
 
         const { data } = response.data;
         setLeaderboardData(data);
-        setTotStandings(response.data.totalCount); 
+        setTotStandings(response.data.totalCount);
       } catch (error) {
         console.error("Error fetching leaderboard data:", error);
       }
@@ -51,8 +54,7 @@ const Standings = () => {
     <div
       className="min-h-screen bg-gray-100 text-gray-900 flex justify-center"
       style={{
-        backgroundImage:
-          "url('/images/loginbg.jpg')",
+        backgroundImage: "url('/images/loginbg.jpg')",
       }}
     >
       <div className="max-w-screen-md m-0 sm:m-10 bg-black/55 shadow sm:rounded-lg flex justify-center flex-1">
@@ -94,7 +96,24 @@ const Standings = () => {
                             {row.participants.score}
                           </td>
                           <td className="text-left py-3 px-4">
-                            {new Date(row.participants.lastSubmission).toLocaleString()}
+                            {(() => {
+                              const startTime = new Date(row.schedule.start);
+                              const endTime = new Date(row.participants.lastSubmission);
+                              const duration = endTime - startTime; // Difference in milliseconds
+
+                              // Format the duration as needed
+                              const hours = Math.floor(
+                                duration / (1000 * 60 * 60)
+                              );
+                              const minutes = Math.floor(
+                                (duration % (1000 * 60 * 60)) / (1000 * 60)
+                              );
+                              const seconds = Math.floor(
+                                (duration % (1000 * 60)) / 1000
+                              );
+
+                              return `${hours}h ${minutes}m ${seconds}s`;
+                            })()}
                           </td>
                         </tr>
                       ))}
