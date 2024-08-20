@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Container, Button } from "@mui/material";
+import { Box, Typography, Container, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import TableComponent from "../components/contest/ContestTable";
-import LoginModal from "../components/modals/LoginModal";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import LoginModal from "../components/modals/LoginModal";
 import { useNavigate } from "react-router-dom";
 
 // Dark theme setup
@@ -46,7 +45,7 @@ const Page = () => {
               },
             }
           );
-          console.log(response.data.data);
+          console.log(response.data.data)
           setContestData(response.data.data);
         } catch (error) {
           console.error("Error fetching contest data:", error);
@@ -96,6 +95,48 @@ const Page = () => {
 
   const navigate = useNavigate();
 
+  // Render Table component inline
+  const renderTable = (columns, rows) => (
+    <TableContainer
+      component={Paper}
+      sx={{
+        border: "1px solid rgba(255, 255, 255, 0.2)",
+        borderRadius: "8px",
+        overflow: "hidden",
+      }}
+    >
+      <Table aria-label="customized table">
+        <TableHead>
+          <TableRow>
+            {columns.map((column) => (
+              <TableCell
+                key={column.id}
+                align={column.align || "left"}
+                sx={{ width: column.width || "auto" }}
+              >
+                {column.label}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((row, rowIndex) => (
+            <TableRow key={rowIndex}>
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={column.align || "left"}
+                >
+                  {row[column.id]}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <Navbar />
@@ -137,21 +178,13 @@ const Page = () => {
                 <Typography variant="h6" gutterBottom>
                   Problems
                 </Typography>
-                <TableComponent
-                  columns={problemColumns}
-                  rows={problemRows}
-                  titleAsLink
-                />
+                {renderTable(problemColumns, problemRows)}
               </Box>
               <Box flex={2}>
                 <Typography variant="h6" gutterBottom>
                   Scoreboard
                 </Typography>
-                <TableComponent
-                  columns={scoreboardColumns}
-                  rows={scoreboardRows}
-                  titleAsLink
-                />
+                {renderTable(scoreboardColumns, scoreboardRows)}
               </Box>
             </Box>
           </>
