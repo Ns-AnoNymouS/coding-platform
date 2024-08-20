@@ -46,7 +46,7 @@ const OutputModal = ({ open, onClose, outputData }) => {
           component="h2"
           textAlign="center"
           gutterBottom
-          sx={{ color: status === "failed" ? "error.main" : "success.main" }}
+          sx={{ color: 'white' }}
         >
           Test Results
         </Typography>
