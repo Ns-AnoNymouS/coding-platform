@@ -197,13 +197,14 @@ const getContestQuestions = async (req, res) => {
             contestTitle: contest.contestTitle,
             contestNumber: contest.contestNumber,
             description: contest.description,
+
             schedule: contest.schedule,
             isHost: contest.host == userId,
             isRegistered: contest.participants.some(participant => participant.user.equals(userId)),
         };
 
         if (response.isHost || contest.schedule.start < new Date()) {
-            const questions = await ContestQuestions.find({ _id: { $in: contest.questionIds } }, "_id title points");
+            const questions = await ContestQuestions.find({ _id: { $in: contest.questionIds } }, "_id problemNumber title points");
             response.questions = questions;
         }
 
