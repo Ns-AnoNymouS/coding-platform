@@ -272,6 +272,7 @@ const ProblemsPage = () => {
                         <Link
                           className="text-white hover:text-blue-500 transition-all duration-300"
                           to={`/problem/${problem?.problem_id}`}
+                          state={{ status: problem.status.toLowerCase() }}
                         >
                           {problem.title}
                         </Link>

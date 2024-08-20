@@ -9,6 +9,7 @@ const ProblemStatement = ({
   outputVisible,
   tags = [],
   difficulty = "Unknown",
+  solved = "Unsolved"
 }) => {
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -48,6 +49,9 @@ const ProblemStatement = ({
           >
             {title}
           </Typography>
+          <Chip
+            label={solved}
+          />
           <Chip
             label={difficulty}
             color={getDifficultyColor(difficulty)}
