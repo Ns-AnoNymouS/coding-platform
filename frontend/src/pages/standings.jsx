@@ -8,7 +8,7 @@ import {
   Pagination,
   Box
 } from "@mui/material";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
@@ -22,23 +22,6 @@ const Standings = () => {
     { name: "Jane Smith", age: 34, email: "jane@example.com" },
     { name: "Sam Green", age: 45, email: "sam@example.com" },
   ];
-
-  //   const onSubmit = async (data) => {
-  //     try {
-  //       const response = await axios.post("http://localhost:6969/login", data, {
-  //         validateStatus: (status) => {
-  //           return status >= 200 && status < 500;
-  //         },
-  //       });
-  //       if (response.data.status === "ok") {
-  //         localStorage.setItem("token", response.data.token);
-  //         localStorage.setItem("role", response.data.user.role);
-  //         navigate("/problems");
-  //       } else alert(response.data.message);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
 
   const handleOpenContest = (contestNumber) => {
     navigate(`/contest/${contestNumber}`);
