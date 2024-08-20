@@ -3,12 +3,14 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 
-import { verifyToken, adminOnly, checkToken } from '../middlewares/login-middleware.js';
+import { verifyToken, checkToken } from '../middlewares/login-middleware.js';
+import { getLeaderboard } from '../controllers/leaderboard-controller.js';
 import {
     createContest, getContest, createContestQuestion,
     getContestQuestions, getContestQuestionById, registerContest
 } from '../controllers/contest-controller.js';
 import { submitContestCode } from '../controllers/submission-controller.js';
+import { get } from 'http';
 
 const router = express.Router();
 
@@ -35,5 +37,7 @@ router.post("/create-contest", verifyToken, createContest);
 router.post("/register-contest", verifyToken, registerContest);
 router.post("/create-contest-problem", upload.single('file'), verifyToken, createContestQuestion);
 router.post("/submit-contest-code", verifyToken, submitContestCode);
+
+router.get("/get-standings", checkToken, getLeaderboard);
 
 export default router;
