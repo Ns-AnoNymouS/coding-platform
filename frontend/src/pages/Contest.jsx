@@ -12,13 +12,40 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Link, 
+  Link,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from "@mui/material";
-import TableComponent from "../components/contest/ContestTable";
+import { styled } from "@mui/material/styles";
+import { tableCellClasses } from "@mui/material/TableCell";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import debounce from "lodash.debounce";
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.action.hover,
+  },
+  "&:last-child td, &:last-child th": {
+    border: 0,
+  },
+}));
 
 const Contest = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,21 +99,26 @@ const Contest = () => {
     }
   };
 
-  const debouncedFetchProblems = useCallback(
+  const debouncedFetchContests = useCallback(
     debounce(() => {
       fetchContests();
     }, 500),
     [rowsPerPage, page]
   );
+
   useEffect(() => {
-    debouncedFetchProblems();
+    debouncedFetchContests();
     return () => {
-      debouncedFetchProblems.cancel();
+      debouncedFetchContests.cancel();
     };
-  }, [debouncedFetchProblems]);
+  }, [debouncedFetchContests]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
+  };
+
+  const handleContestClick = (contestNumber) => {
+    navigate(`/contest/${contestNumber}`);
   };
 
   const handleRegisterClick = (contestId) => {
@@ -99,6 +131,79 @@ const Contest = () => {
 
   const filteredPastContests = contests.past.filter((contest) =>
     contest.contestTitle.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const renderTable = (columns, rows) => (
+    <TableContainer
+      component={Paper}
+      sx={{
+        border: "1px solid rgba(255, 255, 255, 0.2)",
+        borderRadius: "8px",
+        overflow: "hidden",
+      }}
+    >
+      <Table aria-label="customized table">
+        <TableHead>
+          <TableRow>
+            {columns.map((column, index) => (
+              <StyledTableCell
+                key={index}
+                align={column.align || "left"}
+                sx={{ width: column.width || "auto" }}
+              >
+                {column.label}
+              </StyledTableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((row, index) => (
+            <StyledTableRow key={index}>
+              {columns.map((column, colIndex) => (
+                <StyledTableCell
+                  key={colIndex}
+                  align={column.align || "left"}
+                  sx={{ width: column.width || "auto" }}
+                >
+                  {column.id === "contestTitle" ? (
+                    <Link
+                      href="#"
+                      color="inherit"
+                      underline="none"
+                      onClick={() => handleContestClick(row._id)}
+                    >
+                      {row[column.id]}
+                    </Link>
+                  ) : column.id === "register" ? (
+                    <Button
+                      variant="contained"
+                      disabled={row.isRegistered}
+                      sx={{
+                        backgroundColor: row.isRegistered
+                          ? "gray"
+                          : "lightgreen",
+                        color: "#000",
+                        "&:hover": {
+                          cursor: "pointer",
+                          backgroundColor: "green",
+                          color: "white",
+                        },
+                        textTransform: "none",
+                      }}
+                      onClick={() => handleRegisterClick(row._id)}
+                    >
+                      {row.isRegistered ? "Registered" : "Register"}
+                    </Button>
+                  ) : (
+                    row[column.id]
+                  )}
+                </StyledTableCell>
+              ))}
+            </StyledTableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 
   const currentContestColumns = [
@@ -166,7 +271,7 @@ const Contest = () => {
               backgroundColor: "#a1a1a1", // Custom zinc color on hover
               color: "#000", // White text on hover
             },
-            textTransform: "none"
+            textTransform: "none",
           }}
           onClick={() => navigate("/create-contest")}
         >
@@ -183,10 +288,7 @@ const Contest = () => {
           Current or Upcoming Contests
         </Typography>
       </Box>
-      <TableComponent
-        columns={currentContestColumns}
-        rows={currentContestRows}
-      />
+      {renderTable(currentContestColumns, currentContestRows)}
       <Box mt={4} />
       <Typography
         variant="h6"
@@ -196,7 +298,7 @@ const Contest = () => {
       >
         Past Contests
       </Typography>
-      <TableComponent columns={pastContestColumns} rows={pastContestRows} />
+      {renderTable(pastContestColumns, pastContestRows)}
       <Box className="flex items-center justify-between mt-4">
         <Pagination
           count={Math.ceil(totContests / rowsPerPage)}
