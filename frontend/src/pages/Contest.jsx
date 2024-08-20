@@ -117,8 +117,13 @@ const Contest = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleContestClick = (contestNumber) => {
-    navigate(`/contest/${contestNumber}`);
+  const handleContestClick = (contest) => {
+    navigate(`/contest/${contest._id}`, {
+      state:{
+        startTime: contest.schedule.start,
+        endTime: contest.schedule.end,
+      }
+    });
   };
 
   const handleRegisterClick = (contestId) => {
@@ -170,7 +175,7 @@ const Contest = () => {
                       href="#"
                       color="inherit"
                       underline="none"
-                      onClick={() => handleContestClick(row._id)}
+                      onClick={() => handleContestClick(row)}
                     >
                       {row[column.id]}
                     </Link>

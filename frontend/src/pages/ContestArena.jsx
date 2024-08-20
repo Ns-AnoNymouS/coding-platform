@@ -17,9 +17,10 @@ import CodeEditorWindow from "../components/Editor/CodeEditorWindow";
 import { languageOptions } from "../constants/languageOptions";
 import Input from "../components/codingArena/Input";
 
-const ContestArena = () => {
+const ContestArena = ({startTime, EndTime}) => {
   const [problemData, setProblemData] = useState({});
-  const { contestId, problemNumber } = useParams();
+  const [remainingTime, setRemainingTime] = useState("");
+  const { "contest-id": contestId, problemNumber } = useParams();
   const { isLoggedIn } = useContext(AuthContext);
   const [readyForRender, setReadyForRender] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
@@ -221,6 +222,7 @@ const ContestArena = () => {
   };
 
   const handleSubmitClick = async () => {
+    console.log(contestId)
     if (isLoggedIn) {
       const data = {
         language: language.value,
