@@ -324,7 +324,7 @@ const ContestArena = () => {
       const response = await axios.get(
         "http://localhost:6969/get-submissions",
         {
-          params: { problemNumber: problemNumber },
+          params: { problemNumber: problemNumber, contestId: contestId },
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
