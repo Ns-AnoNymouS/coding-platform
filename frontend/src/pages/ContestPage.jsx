@@ -169,9 +169,6 @@ const Page = () => {
       negative: question?.points?.negative,
     })) || [];
 
-  const getFinishTime = (finishTime) => finishTime || "Running";
-
-
   const renderTable = (columns, rows) => (
     <TableContainer
       component={Paper}
