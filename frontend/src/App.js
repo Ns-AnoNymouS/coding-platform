@@ -19,7 +19,7 @@ import Contest from "./pages/Contest";
 import AddContestQuestion from "./components/contest/AddContestQuestion";
 import Page from "./pages/ContestPage";
 import ContestArena from "./pages/ContestArena";
-import Standings from "./pages/standings";
+import Standings from "./pages/Standings";
 
 const darkTheme = createTheme({
   palette: {
