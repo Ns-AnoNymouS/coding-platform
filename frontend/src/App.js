@@ -69,6 +69,7 @@ function App() {
           <Route path="/contest/:contest-id/add" element={<AddContestQuestion />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element=<h1>404 NOT FOUND</h1>/>
         </Routes>
       </Router>
     </ThemeProvider>

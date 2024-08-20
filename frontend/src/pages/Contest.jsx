@@ -118,17 +118,35 @@ const Contest = () => {
   };
 
   const handleContestClick = (contest) => {
-    navigate(`/contest/${contest._id}`, {
-      state:{
+    const url = `/contest/${contest._id}`;
+    console.log("Navigating to:", url); // Log the URL to check if it's correct
+    navigate(url, {
+      state: {
         startTime: contest.schedule.start,
         endTime: contest.schedule.end,
-      }
+      },
     });
   };
+  
 
-  const handleRegisterClick = (contestId) => {
-    console.log(`Registering for contest with ID: ${contestId}`);
+  const handleRegisterClick = async (contestId) => {
+    try {
+      await axios.post(
+        "http://localhost:6969/register-contest",
+        { contestId: contestId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json" // Optional but recommended
+          },
+        }
+      );
+      console.log(`Registering for contest with ID: ${contestId}`);
+    } catch (error) {
+      console.error("Error registering for contest:", error);
+    }
   };
+  
 
   const filteredCurrentContests = contests.current.filter((contest) =>
     contest.contestTitle.toLowerCase().includes(searchTerm.toLowerCase())
