@@ -381,13 +381,17 @@ const CodingArena = () => {
     }
   }
 
+  useEffect(()=>{
+    if(currentTab === 2)
+      handleSubmissions();
+  }, [currentTab]);
+
 
   const renderContent = () => {
     switch (currentTab) {
       case 1:
         return <Solutions solutions={solutions} />;
       case 2:
-        handleSubmissions();
         return <Submissions submissions={submissions} />;
       case 0:
       default:
