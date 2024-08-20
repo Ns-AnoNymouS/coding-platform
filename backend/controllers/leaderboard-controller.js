@@ -54,20 +54,4 @@ const getLeaderboard = async (req, res) => {
     }
 }
 
-const getLiveLeaderboard = async (req, res) => {
-    try {
-        const { userId, contestId, page } = req.query;
-        const contest = await Contest.findById(contestId);
-        const socketId = userSocketMap.get(userId);
-        if (socketId) {
-            io.to(socketId).emit('message', message);
-        }
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: 'An error occurred while sending message to user.',
-        });
-    }
-}
-
 export { getLeaderboard };

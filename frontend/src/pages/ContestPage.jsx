@@ -42,8 +42,9 @@ const Page = () => {
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL);
+    socket.emit('joinRoom', { contestId });
 
-    socket.on("leaderboardUpdate", (updatedLeaderboard) => {
+    socket.on("updateLeaderboard", (updatedLeaderboard) => {
       setScoreBoardRows(updatedLeaderboard);
     });
 
@@ -276,8 +277,8 @@ const Page = () => {
                     {contestState === "before"
                       ? `Contest starts in: ${timeLeft}`
                       : contestState === "during"
-                      ? `Time left: ${timeLeft}`
-                      : timeLeft}
+                        ? `Time left: ${timeLeft}`
+                        : timeLeft}
                   </Typography>
                 </Box>
               )}
