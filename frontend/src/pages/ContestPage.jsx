@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Container, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { Box, Typography, Container, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Link } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -45,7 +45,6 @@ const Page = () => {
               },
             }
           );
-          console.log(response.data.data)
           setContestData(response.data.data);
         } catch (error) {
           console.error("Error fetching contest data:", error);
@@ -65,7 +64,7 @@ const Page = () => {
   // Define columns for problems table
   const problemColumns = [
     { id: "id", label: "ID" },
-    { id: "title", label: "Title" },
+    { id: "title", label: "Title", align: "left" }, // Ensure title is left-aligned for better readability
     { id: "positive", label: "Positive Points", align: "right" },
     { id: "negative", label: "Negative Points", align: "right" },
   ];
@@ -79,7 +78,15 @@ const Page = () => {
   // Extract rows from the questions in contestData
   const problemRows = contestData?.questions?.map((question, index) => ({
     id: index + 1,  // Auto-incrementing ID
-    title: question?.title,  // Access title safely
+    title: (
+      <Link
+        href={`/contest/${contestId}/${question.id}`} // Change this to the appropriate URL for problem detail
+        color="inherit"
+        underline="hover"
+      >
+        {question.title}
+      </Link>
+    ),  // Render title as a link
     positive: question?.points?.positive,  // Access points safely
     negative: question?.points?.negative,  // Access points safely
   })) || [];  
@@ -170,7 +177,6 @@ const Page = () => {
 
               <Typography variant="body1" color="textSecondary">
                 {contestData?.description}{" "}
-                {/* Displaying contest description */}
               </Typography>
             </Box>
             <Box display="flex" mt={2}>

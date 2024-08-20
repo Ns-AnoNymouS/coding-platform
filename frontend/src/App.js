@@ -18,6 +18,7 @@ import { AuthContext } from "./AuthContext";
 import Contest from "./pages/Contest";
 import AddContestQuestion from "./components/contest/AddContestQuestion";
 import Page from "./pages/ContestPage";
+import ContestArena from "./pages/ContestArena";
 
 const darkTheme = createTheme({
   palette: {
@@ -62,6 +63,7 @@ function App() {
           <Route path="/playground" element={<CodingPlayGround />} />
           <Route path="/create-contest" element={<ContestForm />} />
           <Route path="/contest/:contest-id" element={<Page />} />
+          <Route path="/contest/:contest-id/:problemNumber" element={<ContestArena />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/contest/:contest-id/add" element={<AddContestQuestion />} />
