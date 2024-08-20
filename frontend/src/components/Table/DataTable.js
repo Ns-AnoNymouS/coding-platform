@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import TableRowComponent from './TableRow';
 import axios from 'axios';
 
-const DataTable = ({ rows }) => {
+const DataTable = ({ rows, onRefresh }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -28,10 +28,12 @@ const DataTable = ({ rows }) => {
     } catch (error) {
       setSnackbarMessage("An error occurred while approving the problem.");
       setSnackbarSeverity("error");
+    }finally{
+      setSnackbarOpen(true);
+      onRefresh();
     }
-    setSnackbarOpen(true);
   };
-
+  
   const Decline = async (problemId) => {
     try {
       const response = await axios.post(
@@ -44,6 +46,7 @@ const DataTable = ({ rows }) => {
         }
       );
       setSnackbarMessage(response.data.message);
+      onRefresh();
       setSnackbarSeverity("success");
     } catch (error) {
       setSnackbarMessage("An error occurred while declining the problem.");

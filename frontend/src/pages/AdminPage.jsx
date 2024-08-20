@@ -7,7 +7,7 @@ import TestCaseTable from "../components/Table/TestCaseTable";
 const AdminPage = () => {
   const [problemsData, setProblemsData] = useState(null);
   const [testCasesData, setTestCasesData] = useState(null);
-  const [refreshFlag, setRefreshFlag] = useState(false); 
+  const [refreshFlag, setRefreshFlag] = useState(false);
 
   useEffect(() => {
     const fetchProblems = async () => {
@@ -54,10 +54,10 @@ const AdminPage = () => {
 
     fetchProblems();
     fetchTestCases();
-  }, [refreshFlag]); 
+  }, [refreshFlag]);
 
   const triggerRefresh = () => {
-    setRefreshFlag((prev) => !prev); 
+    setRefreshFlag((prev) => !prev);
   };
 
   return (
@@ -73,8 +73,8 @@ const AdminPage = () => {
         <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>
           Problems Table
         </h1>
-        {(problemsData && problemsData.length > 0) ? (
-          <DataTable rows={problemsData} />
+        {problemsData && problemsData.length > 0 ? (
+          <DataTable rows={problemsData} onRefresh={triggerRefresh} />
         ) : (
           <Typography>No Problems Data To Display</Typography>
         )}
@@ -90,11 +90,8 @@ const AdminPage = () => {
         <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>
           Test Cases Table
         </h1>
-        {(testCasesData && testCasesData.length > 0) ? (
-          <TestCaseTable
-            testCases={testCasesData}
-            onRefresh={triggerRefresh} 
-          />
+        {testCasesData && testCasesData.length > 0 ? (
+          <TestCaseTable testCases={testCasesData} onRefresh={triggerRefresh} />
         ) : (
           <Typography>No Test Cases Data To Display</Typography>
         )}
