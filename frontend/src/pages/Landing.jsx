@@ -106,7 +106,7 @@ const Landing = () => {
                 <CardMedia
                   component="img"
                   height="200"
-                  image="/images/problems.png"
+                  image="/images/contest.png"
                   alt="contest"
                 />
                 <CardContent>
