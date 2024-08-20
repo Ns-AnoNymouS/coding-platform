@@ -66,7 +66,7 @@ const getContest = async (req, res) => {
             return {
                 ...item._doc,  // Spread the original document's properties
                 isHost: item.host == userId, // Add the isHost key
-                isRegistered: participants.includes(userId),
+                isRegistered: participants.some(participant => participant.user.equals(userId)),
             };
         });
 
@@ -196,9 +196,10 @@ const getContestQuestions = async (req, res) => {
         const response = {
             contestTitle: contest.contestTitle,
             contestNumber: contest.contestNumber,
+            description: contest.description,
             schedule: contest.schedule,
             isHost: contest.host == userId,
-            isRegistered: contest.participants.includes(userId),
+            isRegistered: contest.participants.some(participant => participant.user.equals(userId)),
         };
 
         if (response.isHost || contest.schedule.start < new Date()) {
@@ -287,13 +288,13 @@ const registerContest = async (req, res) => {
             })
         }
 
-        if (contest.participants.includes(userId)) {
+        if (contest.participants.some(participant => participant.user.equals(userId))) {
             return res.status(400).json({
                 status: "unsuccessful",
                 data: "User already registered for the contest"
-            })
+            });
         }
-        contest.participants.push(userId)
+        contest.participants.push({ user: userId, score: 0 })
         await contest.save();
 
         res.status(200).json({

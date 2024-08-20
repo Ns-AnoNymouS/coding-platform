@@ -44,8 +44,19 @@ const Schema = new mongoose.Schema(
             required: [true, "A contest must have a host"],
         },
         participants: {
-            type: [mongoose.Schema.ObjectId],
-            ref: "User",
+            type: [
+                {
+                    user: {
+                        type: mongoose.Schema.ObjectId,
+                        ref: "User", // Ensure user is always provided
+                        required: true,
+                    }, score: {
+                        type: Number,
+                        default: 0, // Set a default score if none is provided
+                        required: true,
+                    }
+                }
+            ],
         }
     },
     {

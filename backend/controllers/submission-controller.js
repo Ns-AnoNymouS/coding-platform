@@ -251,11 +251,11 @@ const submitContestCode = async (req, res) => {
             const response = await _runCode(language, code, input, expectedOutput);
             if (response.status == "Failed") {
                 let verdict = "";
-                if (response.message == "timeout") {
-                    verdict = "TIMELIMITED ERROR";
-                } else if (response.message == "Memory limit exceeded") {
-                    verdict = "MEMORY ERROR";
-                } else if (response.message == "wrong") {
+                if (response.message.toLowerCase().includes("timeout")) {
+                    verdict = "TIME LIMIT EXCEEDED";
+                } else if (response.message.toLowerCase().includes("memory limit exceeded")) {
+                    verdict = "MEMORY LIMIT EXCEEDED";
+                } else if (response.message.toLowerCase().includes("wrong")) {
                     verdict = "WRONG ANSWER";
                 } else {
                     verdict = "ERROR";
