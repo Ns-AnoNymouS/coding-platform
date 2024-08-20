@@ -26,6 +26,10 @@ const getLeaderboard = async (req, res) => {
             { $project: { _id: 0, participants: 1 } } // Project only the participants field
         ]);
 
+        const index = (page - 1) * limit;
+        participantsData.forEach((p, index) => {
+            p.participants.rank = index + 1;
+        });
         const userIds = participantsData.map(p => p.participants.user);
 
         const users = await User.find({ _id: { $in: userIds } }).select('username _id').exec();
