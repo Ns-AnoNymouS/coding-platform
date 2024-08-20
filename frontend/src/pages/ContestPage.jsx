@@ -11,6 +11,12 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Pagination,
+  PaginationItem,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
@@ -18,6 +24,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import LoginModal from "../components/modals/LoginModal";
 import { io } from "socket.io-client";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const theme = createTheme({
   palette: {
@@ -35,22 +43,32 @@ const Page = () => {
   const [contestState, setContestState] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
+  const [scoreboardRows, setScoreboardRows] = useState([]);
+  const [scoreboardPage, setScoreboardPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const navigate = useNavigate();
   const SOCKET_SERVER_URL = "http://localhost:6969";
-
-  const [scoreboardRows, setScoreBoardRows] = useState([]);
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL);
 
-    socket.on("leaderboardUpdate", (updatedLeaderboard) => {
-      setScoreBoardRows(updatedLeaderboard);
+    socket.on("leaderboardUpdate", async () => {
+      const response = await axios.get("http://localhost:6969/scoreboard", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        params: {
+          page: scoreboardPage,
+          limit: rowsPerPage,
+        },
+      });
+      setScoreboardRows(response.data);
     });
 
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [scoreboardPage, rowsPerPage]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -171,6 +189,14 @@ const Page = () => {
       negative: question?.points?.negative,
     })) || [];
 
+  const formattedScoreboardRows =
+    Array.isArray(scoreboardRows) &&
+    scoreboardRows.map((row) => ({
+      name: row.name,
+      score: row.score,
+      finishTime: new Date(row.finishTime).toLocaleTimeString(),
+    })) || [];
+
   const renderTable = (columns, rows) => (
     <TableContainer
       component={Paper}
@@ -274,31 +300,42 @@ const Page = () => {
                 >
                   <Typography variant="h6" color="textSecondary">
                     {contestState === "before"
-                      ? `Contest starts in: ${timeLeft}`
+                      ? `Starts in: ${timeLeft}`
                       : contestState === "during"
-                      ? `Time left: ${timeLeft}`
-                      : timeLeft}
+                      ? `Time Left: ${timeLeft}`
+                      : `Contest Ended`}
                   </Typography>
                 </Box>
               )}
-            </Box>
 
-            {(contestState === "during" || contestState === "after") && (
-              <Box display="flex" mt={2}>
-                <Box flex={3} mr={2}>
-                  <Typography variant="h6" gutterBottom>
-                    Problems
-                  </Typography>
-                  {renderTable(problemColumns, problemRows)}
-                </Box>
-                <Box flex={2}>
-                  <Typography variant="h6" gutterBottom>
-                    {contestState === "after" ? "Final Rankings" : "Scoreboard"}
-                  </Typography>
-                  {renderTable(scoreboardColumns, scoreboardRows)}
+              <Box mt={4}>
+                <Typography variant="h6" gutterBottom>
+                  Problems
+                </Typography>
+                {renderTable(problemColumns, problemRows)}
+              </Box>
+
+              <Box mt={4}>
+                <Typography variant="h6" gutterBottom>
+                  Scoreboard
+                </Typography>
+                {renderTable(scoreboardColumns, formattedScoreboardRows)}
+                <Box display="flex" justifyContent="center" mt={2}>
+                  <Pagination
+                    count={Math.ceil(scoreboardRows.total / rowsPerPage)}
+                    page={scoreboardPage}
+                    onChange={(event, value) => setScoreboardPage(value)}
+                    renderItem={(item) => (
+                      <PaginationItem
+                        components={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+                        {...item}
+                      />
+                    )}
+                    sx={{ "& .MuiPaginationItem-root": { color: "white" } }}
+                  />
                 </Box>
               </Box>
-            )}
+            </Box>
           </>
         )}
       </Container>
