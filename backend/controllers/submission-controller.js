@@ -273,9 +273,6 @@ const submitContestCode = async (req, res) => {
             });
         }
 
-        const contestSubmissions = await ContestSubmissions.find({
-            user: user_id, problem: problemNumber, contestId
-        });
         const testCases = testCaseData.givenInput.map((input, index) => ({
             input,
             expectedOutput: testCaseData.correctOutput[index]
