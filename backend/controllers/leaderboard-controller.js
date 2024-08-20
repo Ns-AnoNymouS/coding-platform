@@ -1,6 +1,7 @@
 import ContestSubmissions from "../models/contest-submissions-model.js";
 import Contest from "../models/contest-model.js";
 import User from "../models/user.js";
+import mongoose from "mongoose";
 
 const getLeaderboard = async (req, res) => {
     try {
@@ -19,11 +20,12 @@ const getLeaderboard = async (req, res) => {
         }
 
         const participantsData = await Contest.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(contestId) } },
             { $unwind: '$participants' }, // Deconstructs the participants array
             { $sort: { 'participants.score': -1, 'participants.submittedAt': 1 } }, // Sort by score descending and submission time ascending
             { $skip: (page - 1) * limit }, // Skip documents for the current page
             { $limit: limit }, // Limit the number of documents per page
-            { $project: { _id: 0, participants: 1 } } // Project only the participants field
+            { $project: { _id: 0, schedule: 1, participants: 1 } } // Project only the participants field
         ]);
 
         const index = (page - 1) * limit;
@@ -32,8 +34,7 @@ const getLeaderboard = async (req, res) => {
         });
         const userIds = participantsData.map(p => p.participants.user);
 
-        const users = await User.find({ _id: { $in: userIds } }).select('username _id').exec();
-
+        const users = await User.find({ _id: { $in: userIds } }).select('username _id');
         const userMap = {};
         users.forEach(user => {
             userMap[user._id] = user.username;
