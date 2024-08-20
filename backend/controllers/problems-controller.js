@@ -61,7 +61,7 @@ const getProblems = async (req, res) => {
 				description: problem.description,
 				difficulty: problem.difficulty,
 				tags: problem.tags,
-				constrains: problem.constrains,
+				constrains: problem.constraints,
 				status: solved.hasOwnProperty(problem.problemNumber) ? "solved" : "unsolved",
 			};
 
