@@ -94,7 +94,7 @@ const Standings = () => {
                             {row.participants.score}
                           </td>
                           <td className="text-left py-3 px-4">
-                            {new Date(row.participants.submittedAt).toLocaleString()}
+                            {new Date(row.participants.lastSubmission).toLocaleString()}
                           </td>
                         </tr>
                       ))}
