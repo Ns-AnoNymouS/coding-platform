@@ -137,10 +137,11 @@ const Contest = () => {
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json" // Optional but recommended
+            "Content-Type": "application/json" 
           },
         }
       );
+      fetchContests();
       console.log(`Registering for contest with ID: ${contestId}`);
     } catch (error) {
       console.error("Error registering for contest:", error);
@@ -190,7 +191,6 @@ const Contest = () => {
                 >
                   {column.id === "contestTitle" ? (
                     <Link
-                      href="#"
                       color="inherit"
                       underline="none"
                       onClick={() => handleContestClick(row)}

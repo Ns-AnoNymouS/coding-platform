@@ -105,6 +105,7 @@ const ContestArena = ({startTime, EndTime}) => {
             code: btoa(code),
             input: btoa(examples[0].givenInput[i]),
             expectedOutput: examples[0].correctOutput[i],
+            contestId: contestId
           };
           setLoading({
             run: true,
