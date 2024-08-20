@@ -11,10 +11,10 @@ import Problem from "../models/problem-model.js"
 import User from "../models/user.js"
 import ContestQuestions from '../models/contest-problems-model.js';
 import Contest from '../models/contest-model.js';
-import { io } from '../sockets-initializer.js';
+import { getSocketInstance } from '../sockets-initializer.js';
 
 const execPromise = util.promisify(exec);
-
+const io = getSocketInstance();
 
 const semaphore = new Semaphore(process.env.MAX_CONCURRENT_PROCESSES);
 
