@@ -277,6 +277,13 @@ const submitContestCode = async (req, res) => {
             input,
             expectedOutput: testCaseData.correctOutput[index]
         }));
+
+        const contestSubmission = await ContestSubmissions.find({
+            user: user_id,
+            problemNumber: problemData.problemNumber,
+            contestId,
+            verdict: "ACCEPTED"
+        });
         for (const [index, { input, expectedOutput }] of testCases.entries()) {
             const response = await _runCode(language, code, input, expectedOutput);
             if (response.status == "Failed") {
@@ -298,20 +305,15 @@ const submitContestCode = async (req, res) => {
                     )
                     await newSubmission.save();
 
-                    // const negativePoints = problemData.points.negative;
-                    // contest.participants.forEach(participant => {
-                    //     if (participant.user.equals(user_id)) {
-                    //         participant.score -= negativePoints;
-                    //     }
-                    // })
-                    // await contest.save();
-                    
                     const negativePoints = problemData.points.negative;
                     const participant = contest.participants.find(participant => participant.user.equals(user_id));
 
-                    if (participant) {
-                        participant.score -= negativePoints;
-                        await contest.save();  // Save the updated contest only once after modifying the score
+                    if (contestSubmission.length == 0) {
+                        if (participant) {
+                            participant.score -= negativePoints;
+                            contest.markModified('participants');
+                            await contest.save();  // Save the updated contest only once after modifying the score
+                        }
                     }
                 }
                 return res.status(200).json({ ...response, passed: `${index}/${testCases.length}`, input, expectedOutput })
@@ -325,17 +327,21 @@ const submitContestCode = async (req, res) => {
         )
         await newSubmission.save();
 
-        const positivePoints = problemData.points.positive;
-        contest.participants.forEach(participant => {
-            if (participant.user.equals(user_id)) {
+        if (contestSubmission.length == 0) {
+            const positivePoints = problemData.points.positive;
+            const participant = contest.participants.find(participant => participant.user.equals(user_id));
+            if (participant) {
                 participant.score += positivePoints;
+                participant.lastSubmission = Date.now()
+                contest.markModified('participants');
+                await contest.save();  // Save the updated contest only once after modifying the score
             }
-        })
-        await contest.save();
+        }
 
         res.status(200).json({ status: "Passed", message: "All testcases passed.", passed: `${testCases.length}/${testCases.length}` })
     } catch (err) {
         console.error(err);
+        res.status(500).json({ status: "Failed", message: "Internal Server Error.", passed: `0/0` })
     }
 }
 

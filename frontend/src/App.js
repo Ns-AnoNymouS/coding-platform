@@ -19,6 +19,7 @@ import Contest from "./pages/Contest";
 import AddContestQuestion from "./components/contest/AddContestQuestion";
 import Page from "./pages/ContestPage";
 import ContestArena from "./pages/ContestArena";
+import Standings from "./pages/standings";
 
 const darkTheme = createTheme({
   palette: {
@@ -69,7 +70,8 @@ function App() {
           <Route path="/contest/:contest-id/add" element={<AddContestQuestion />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="*" element=<h1>404 NOT FOUND</h1>/>
+          <Route path="*" element={<h1>404 NOT FOUND</h1>} />
+          <Route path="contest/:contest-id/standings" element={<Standings />} />
         </Routes>
       </Router>
     </ThemeProvider>
