@@ -18,8 +18,6 @@ const getLeaderboard = async (req, res) => {
             return res.status(404).json({ message: "Contest not found" });
         }
 
-        // const participants = await Contest.findById(contestId)
-        //     .select('participants');
         const participantsData = await Contest.aggregate([
             { $unwind: '$participants' }, // Deconstructs the participants array
             { $sort: { 'participants.score': -1, 'participants.submittedAt': 1 } }, // Sort by score descending and submission time ascending
@@ -30,10 +28,8 @@ const getLeaderboard = async (req, res) => {
 
         const userIds = participantsData.map(p => p.participants.user);
 
-        // Step 2: Query the User model to get usernames
         const users = await User.find({ _id: { $in: userIds } }).select('username _id').exec();
 
-        // Step 3: Create a mapping of user ID to username
         const userMap = {};
         users.forEach(user => {
             userMap[user._id] = user.username;
@@ -46,13 +42,26 @@ const getLeaderboard = async (req, res) => {
                 username: userMap[p.participants.user], // Add username here
             }
         }));
-        // const leaderboard = participants
-        //     .sort({ score: -1, submittedAt: 1 }) // Sort by score descending and submittedAt ascending
-        //     .slice((page - 1) * limit, page * limit);
 
         return res.status(200).json({ status: "ok", data: enrichedParticipants });
     } catch (error) {
         return res.status(500).json({ status: "failed", data: error.message });
+    }
+}
+
+const getLiveLeaderboard = async (req, res) => {
+    try {
+        const { userId, contestId, page } = req.query;
+        const contest = await Contest.findById(contestId);
+        const socketId = userSocketMap.get(userId);
+        if (socketId) {
+            io.to(socketId).emit('message', message);
+        }
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'An error occurred while sending message to user.',
+        });
     }
 }
 
