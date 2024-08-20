@@ -175,7 +175,7 @@ const createContestQuestion = async (req, res) => {
 
     res.status(201).json({
       status: "ok",
-      data: question,
+      data: "Sucessfully added new Question.",
     });
   } catch (err) {
     console.log(err);

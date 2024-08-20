@@ -61,8 +61,15 @@ const _runCode = async (language, code, input, expectedOutput) => {
         // Compare output to expected output
         let passed = true;
         if (expectedOutput) {
-            passed = stdout.trim() === expectedOutput.trim();
+            if (typeof expectedOutput === 'string') {
+                // If expectedOutput is a string, compare it directly with stdout
+                passed = stdout.trim() === expectedOutput.trim();
+            } else if (Array.isArray(expectedOutput)) {
+                // If expectedOutput is a list of strings, check if stdout is in that list
+                passed = expectedOutput.some(output => stdout.trim() === output.trim());
+            }
         }
+
         return {
             status: passed ? 'Passed' : 'Failed',
             output: stdout.trim(),
@@ -192,7 +199,7 @@ const submitCode = async (req, res) => {
                     );
                     await newSubmission.save();
                 }
-                return res.status(400).json({ ...response, passed: `${index}/${testCases.length}`, input, expectedOutput })
+                return res.status(200).json({ ...response, passed: `${index}/${testCases.length}`, input, expectedOutput })
             }
         }
 
@@ -254,7 +261,7 @@ const submitContestCode = async (req, res) => {
             });
         }
 
-        const problemData = await ContestQuestions.findOne({ problemNumber, contestId });
+        const problemData = await ContestQuestions.findOne({ _id: problemNumber, contestId });
         const testCaseId = problemData.testCaseId;
 
         const testCaseData = await TestCase.findOne({ _id: testCaseId });
@@ -273,7 +280,7 @@ const submitContestCode = async (req, res) => {
             input,
             expectedOutput: testCaseData.correctOutput[index]
         }));
-        for (const [_, { input, expectedOutput }] of testCases.entries()) {
+        for (const [index, { input, expectedOutput }] of testCases.entries()) {
             const response = await _runCode(language, code, input, expectedOutput);
             if (response.status == "Failed") {
                 let verdict = "";
@@ -286,43 +293,50 @@ const submitContestCode = async (req, res) => {
                 } else {
                     verdict = "ERROR";
                 }
-
                 if (verdict != "ERROR") {
-                    if (!contestSubmissions) {
-                        const newSubmission = new ContestSubmissions(
-                            {
-                                user: user_id, problemNumber, code: code, language: language, contestId, verdict
-                            }
-                        )
-                        await newSubmission.save();
+                    const newSubmission = new ContestSubmissions(
+                        {
+                            user: user_id, problemNumber: problemData.problemNumber, code: code, language: language, contestId, verdict
+                        }
+                    )
+                    await newSubmission.save();
 
-                        const negativePoints = problemData.points.negative;
-                        contest.participants.forEach(participant => {
-                            if (participant.user.equals(user_id)) {
-                                participant.score -= negativePoints;
-                            }
-                        })
-                        await contest.save();
+                    // const negativePoints = problemData.points.negative;
+                    // contest.participants.forEach(participant => {
+                    //     if (participant.user.equals(user_id)) {
+                    //         participant.score -= negativePoints;
+                    //     }
+                    // })
+                    // await contest.save();
+                    
+                    const negativePoints = problemData.points.negative;
+                    const participant = contest.participants.find(participant => participant.user.equals(user_id));
+
+                    if (participant) {
+                        participant.score -= negativePoints;
+                        await contest.save();  // Save the updated contest only once after modifying the score
                     }
                 }
+                return res.status(200).json({ ...response, passed: `${index}/${testCases.length}`, input, expectedOutput })
             }
         }
-        if (!contestSubmissions) {
-            const newSubmission = new ContestSubmissions(
-                {
-                    user: user_id, problemNumber, code: code, language: language, contestId, verdict: "ACCEPTED"
-                }
-            )
-            await newSubmission.save();
 
-            const positivePoints = problemData.points.positive;
-            contest.participants.forEach(participant => {
-                if (participant.user.equals(user_id)) {
-                    participant.score += positivePoints;
-                }
-            })
-            await contest.save();
-        }
+        const newSubmission = new ContestSubmissions(
+            {
+                user: user_id, problemNumber: problemData.problemNumber, code: code, language: language, contestId, verdict: "ACCEPTED"
+            }
+        )
+        await newSubmission.save();
+
+        const positivePoints = problemData.points.positive;
+        contest.participants.forEach(participant => {
+            if (participant.user.equals(user_id)) {
+                participant.score += positivePoints;
+            }
+        })
+        await contest.save();
+
+        res.status(200).json({ status: "Passed", message: "All testcases passed.", passed: `${testCases.length}/${testCases.length}` })
     } catch (err) {
         console.error(err);
     }
@@ -398,7 +412,7 @@ const getSubmissions = async (req, res) => {
         const submissions = await Submission.find({ user: user_id, problem: problemNumber }).sort({ submittedAt: -1 });
         res.status(200).json({ status: "ok", data: submissions });
     } catch (err) {
-        console.error(err);
+        // console.error(err);
         res.status(500).json({ status: "unsucessful", data: "Internal Server Error" });
     }
 }
