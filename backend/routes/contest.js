@@ -8,6 +8,7 @@ import {
     createContest, getContest, createContestQuestion,
     getContestQuestions, getContestQuestionById, registerContest
 } from '../controllers/contest-controller.js';
+import { submitContestCode } from '../controllers/submission-controller.js';
 
 const router = express.Router();
 
@@ -33,5 +34,6 @@ router.get("/get-contest-question-by-id", checkToken, getContestQuestionById);
 router.post("/create-contest", verifyToken, createContest);
 router.post("/register-contest", verifyToken, registerContest);
 router.post("/create-contest-problem", upload.single('file'), verifyToken, createContestQuestion);
+router.post("/submit-contest-code", verifyToken, submitContestCode);
 
 export default router;

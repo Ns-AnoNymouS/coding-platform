@@ -91,71 +91,6 @@ const ContestArena = () => {
     setCurrentTab(newValue);
   };
 
-  const handleSave = async () => {
-    const formData = {
-      language: language.value,
-      code: btoa(code),
-      problemNumber: problemNumber,
-    };
-
-    try {
-      setLoading({
-        run: false,
-        submit: false,
-        save: true,
-      });
-      const response = await axios.post(
-        "http://127.0.0.1:6969/save-code",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          validateStatus: (status) => status >= 200 && status < 500,
-        }
-      );
-
-      if (response.status === 200) {
-        console.log("Code saved successfully!");
-      } else {
-        console.error("Failed to save code.");
-      }
-    } catch (error) {
-      console.error("An error occurred while saving the code.");
-    } finally {
-      setLoading({
-        run: false,
-        submit: false,
-        save: false,
-      });
-    }
-  };
-
-  const fetchCode = async (selectedLanguage) => {
-    try {
-      const response = await axios.get(
-        `http://127.0.0.1:6969/get-saved-code?language=${selectedLanguage}&problemNumber=${problemNumber}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      if (response.data && response.data.code) {
-        setCode(response.data.code);
-      } else {
-        setCode("");
-      }
-    } catch (err) {
-      console.log(err);
-      setCode("");
-    }
-  };
-
-//   useEffect(() => {
-//     fetchCode(language.value);
-//   }, [language]);
-
   const handleRunClick = async () => {
     if (isLoggedIn) {
       const inputData = examples.map((example) => example.givenInput);
@@ -291,6 +226,7 @@ const ContestArena = () => {
         language: language.value,
         code: btoa(code),
         problemNumber: problemNumber,
+        contestId: contestId
       };
 
       try {
@@ -300,7 +236,7 @@ const ContestArena = () => {
           save: false,
         });
         const response = await axios.post(
-          "http://localhost:6969/submit-code",
+          "http://localhost:6969/submit-contest-code",
           data,
           {
             headers: {
@@ -410,7 +346,6 @@ const ContestArena = () => {
             description={problemData.description || ""}
             constraints={problemData.constraints || []}
             examples={problemData.examples || []}
-            tags={problemData.tags || []}
             outputVisible={outputVisible}
             difficulty={problemData.difficulty || ""}
           />
@@ -563,32 +498,6 @@ const ContestArena = () => {
           <div className="flex flex-row">
             <div className="px-4 py-2">
               <LanguagesDropdown onSelectChange={onSelectChange} />
-            </div>
-            <div>
-              <Button
-                sx={{
-                  ...customStyles.control,
-                  width: "auto",
-                  maxHeight: "50px",
-                  maxWidth: "none",
-                  marginRight: 1,
-                  border: "none",
-                  backgroundColor: "white",
-                  color: "black",
-                  "&:hover": {
-                    cursor: "pointer",
-                    color: "white",
-                  },
-                  position: "absolute",
-                  right: "40px",
-                  top: "30px",
-                }}
-                variant="text"
-                onClick={handleSave}
-                disabled={loading.run || loading.save || loading.submit}
-              >
-                Save
-              </Button>
             </div>
           </div>
           <div>
