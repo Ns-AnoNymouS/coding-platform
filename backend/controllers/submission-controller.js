@@ -61,8 +61,15 @@ const _runCode = async (language, code, input, expectedOutput) => {
         // Compare output to expected output
         let passed = true;
         if (expectedOutput) {
-            passed = stdout.trim() === expectedOutput.trim();
+            if (typeof expectedOutput === 'string') {
+                // If expectedOutput is a string, compare it directly with stdout
+                passed = stdout.trim() === expectedOutput.trim();
+            } else if (Array.isArray(expectedOutput)) {
+                // If expectedOutput is a list of strings, check if stdout is in that list
+                passed = expectedOutput.some(output => stdout.trim() === output.trim());
+            }
         }
+
         return {
             status: passed ? 'Passed' : 'Failed',
             output: stdout.trim(),
@@ -254,7 +261,7 @@ const submitContestCode = async (req, res) => {
             });
         }
 
-        const problemData = await ContestQuestions.findOne({ problemNumber, contestId });
+        const problemData = await ContestQuestions.findOne({ _id: problemNumber, contestId });
         const testCaseId = problemData.testCaseId;
 
         const testCaseData = await TestCase.findOne({ _id: testCaseId });
@@ -291,7 +298,7 @@ const submitContestCode = async (req, res) => {
                     if (!contestSubmissions) {
                         const newSubmission = new ContestSubmissions(
                             {
-                                user: user_id, problemNumber, code: code, language: language, contestId, verdict
+                                user: user_id,  problemNumber: problemData.problemNumber, code: code, language: language, contestId, verdict
                             }
                         )
                         await newSubmission.save();
@@ -310,7 +317,7 @@ const submitContestCode = async (req, res) => {
         if (!contestSubmissions) {
             const newSubmission = new ContestSubmissions(
                 {
-                    user: user_id, problemNumber, code: code, language: language, contestId, verdict: "ACCEPTED"
+                    user: user_id, problemNumber: problemData.problemNumber, code: code, language: language, contestId, verdict: "ACCEPTED"
                 }
             )
             await newSubmission.save();
