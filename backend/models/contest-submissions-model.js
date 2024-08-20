@@ -2,8 +2,13 @@ import mongoose from "mongoose";
 
 const Schema = new mongoose.Schema(
     {
-        contestNumber: {
-            type: Number,
+        user: {
+            type: mongoose.Schema.ObjectId,
+            ref: "User",
+            required: [true, "A user must be present for a submission"],
+        },
+        contestId: {
+            type: mongoose.Schema.ObjectId,
             required: [true, "contestNumber cannot be empty"],
         },
         problemNumber: {
@@ -14,8 +19,14 @@ const Schema = new mongoose.Schema(
             type: Object,
             required: [true, "code cannot be empty"],
         },
-        points: {
-            type: Number,
+        language: {
+            type: String,
+            required: [true, "language cannot be empty"],
+        },
+        verdict: {
+            type: String,
+            enum: ["ACCEPTED", "WRONG ANSWER", "MEMORY LIMIT EXCEEDED", "TIME LIMIT EXCEEDED", "ERROR"],
+            required: [true, "You should provide the verdict"],
         },
         submittedAt: {
             type: Date,

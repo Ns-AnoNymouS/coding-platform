@@ -10,6 +10,7 @@ import TestCase from "../models/testcase-model.js"
 import Problem from "../models/problem-model.js"
 import User from "../models/user.js"
 import ContestQuestions from '../models/contest-problems-model.js';
+import Contest from '../models/contest-model.js';
 
 const execPromise = util.promisify(exec);
 
@@ -220,11 +221,36 @@ const submitContestCode = async (req, res) => {
         code = atob(code);
 
         // Validate the input
-        if (!language || !code || !problemNumber) {
+        if (!language || !code || !problemNumber || !contestId) {
             return res.status(400).json({
                 status: "Failed",
                 message: "All fields are required: language, code, problemNumber, contestId",
                 output: "All fields are required: language, code, problemNumber, contestId"
+            });
+        }
+
+        const contest = await Contest.findById(contestId);
+        if (!contest) {
+            return res.status(400).json({
+                status: "Failed",
+                message: "Contest not found",
+                output: "Contest not found"
+            });
+        }
+
+        if (contest.schedule.start > new Date()) {
+            return res.status(400).json({
+                status: "Failed",
+                message: "Contest not started yet",
+                output: "Contest not started yet"
+            });
+        }
+
+        if (contest.participants.every(participant => !participant.user.equals(user_id))) {
+            return res.status(400).json({
+                status: "Failed",
+                message: "User not registered for the contest",
+                output: "User not registered for the contest"
             });
         }
 
@@ -247,7 +273,7 @@ const submitContestCode = async (req, res) => {
             input,
             expectedOutput: testCaseData.correctOutput[index]
         }));
-        for (const [index, { input, expectedOutput }] of testCases.entries()) {
+        for (const [_, { input, expectedOutput }] of testCases.entries()) {
             const response = await _runCode(language, code, input, expectedOutput);
             if (response.status == "Failed") {
                 let verdict = "";
@@ -265,10 +291,18 @@ const submitContestCode = async (req, res) => {
                     if (!contestSubmissions) {
                         const newSubmission = new ContestSubmissions(
                             {
-                                user: user_id, problem: problemNumber, code: code, language: language
+                                user: user_id, problemNumber, code: code, language: language, contestId, verdict
                             }
                         )
                         await newSubmission.save();
+
+                        const negativePoints = problemData.points.negative;
+                        contest.participants.forEach(participant => {
+                            if (participant.user.equals(user_id)) {
+                                participant.score -= negativePoints;
+                            }
+                        })
+                        await contest.save();
                     }
                 }
             }
@@ -276,10 +310,18 @@ const submitContestCode = async (req, res) => {
         if (!contestSubmissions) {
             const newSubmission = new ContestSubmissions(
                 {
-                    user: user_id, problem: problemNumber, code: code, language: language, points: 0
+                    user: user_id, problemNumber, code: code, language: language, contestId, verdict: "ACCEPTED"
                 }
             )
             await newSubmission.save();
+
+            const positivePoints = problemData.points.positive;
+            contest.participants.forEach(participant => {
+                if (participant.user.equals(user_id)) {
+                    participant.score += positivePoints;
+                }
+            })
+            await contest.save();
         }
     } catch (err) {
         console.error(err);

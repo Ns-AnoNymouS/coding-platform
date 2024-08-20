@@ -254,7 +254,7 @@ const getContestQuestionById = async (req, res) => {
         }
 
         if (contest.schedule.start < new Date()) {
-            const questions = await ContestQuestions.find({ _id: { $in: contest.questionIds } }, "_id title points");
+            const questions = await ContestQuestions.find({ _id: { $in: contest.questionIds } }, "_id problemNumber title points");
             response.questions = questions;
         }
 
