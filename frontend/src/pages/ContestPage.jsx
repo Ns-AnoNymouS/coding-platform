@@ -51,8 +51,9 @@ const Page = () => {
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL);
+    socket.emit('joinRoom', { contestId });
 
-    socket.on("leaderboardUpdate", async () => {
+    socket.on("updateLeaderboard", async () => {
       const response = await axios.get("http://localhost:6969/scoreboard", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

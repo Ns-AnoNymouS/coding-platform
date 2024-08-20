@@ -11,9 +11,10 @@ import Problem from "../models/problem-model.js"
 import User from "../models/user.js"
 import ContestQuestions from '../models/contest-problems-model.js';
 import Contest from '../models/contest-model.js';
+import { getSocketInstance } from '../sockets-initializer.js';
 
 const execPromise = util.promisify(exec);
-
+const io = getSocketInstance();
 
 const semaphore = new Semaphore(process.env.MAX_CONCURRENT_PROCESSES);
 
@@ -313,6 +314,8 @@ const submitContestCode = async (req, res) => {
                             participant.score -= negativePoints;
                             contest.markModified('participants');
                             await contest.save();  // Save the updated contest only once after modifying the score
+
+                            io.to(contestId).emit('updateLeaderboard', "update");
                         }
                     }
                 }
@@ -335,6 +338,7 @@ const submitContestCode = async (req, res) => {
                 participant.lastSubmission = Date.now()
                 contest.markModified('participants');
                 await contest.save();  // Save the updated contest only once after modifying the score
+                io.to(contestId).emit('updateLeaderboard', "update");
             }
         }
 
@@ -413,15 +417,15 @@ const getSubmissions = async (req, res) => {
         }
         const user_id = req.user.user._id;
         let submissions;
-        if (contestId){
+        if (contestId) {
             const problemData = await ContestQuestions.findById(problemNumber);
-            if (!problemData){
+            if (!problemData) {
                 return res.status(200).json({ status: "unsucessful", data: "ProblemNumber not exists" });
             }
             problemNumber = problemData.problemNumber;
             submissions = await ContestSubmissions.find({ user: user_id, problemNumber, contestId }).sort({ submittedAt: -1 });
         }
-        else{
+        else {
             submissions = await Submission.find({ user: user_id, problem: problemNumber }).sort({ submittedAt: -1 });
         }
         res.status(200).json({ status: "ok", data: submissions });

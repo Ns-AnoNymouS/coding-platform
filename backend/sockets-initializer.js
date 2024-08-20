@@ -13,12 +13,10 @@ const initializeSocket = (server) => {
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
 
-        // Example event listener
-        socket.on('message', (data) => {
-            console.log('Message received:', data);
-
-            // Broadcast the message to all connected clients
-            io.emit('message', data);
+        socket.on('joinRoom', ({ contestId }) => {
+            socket.join(contestId);
+            console.log(`${userId} joined room ${roomId}`);
+            // socket.to(roomId).emit('userJoined', { userId });
         });
 
         socket.on('disconnect', () => {
