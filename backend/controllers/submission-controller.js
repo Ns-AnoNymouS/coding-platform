@@ -3,11 +3,13 @@ import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import util from 'util';
 import { v4 as uuidv4 } from 'uuid';
+import ContestSubmissions from "../models/contest-submissions-model.js";
 import Submission from "../models/submission-model.js"
 import SaveCode from "../models/save-code-model.js"
 import TestCase from "../models/testcase-model.js"
 import Problem from "../models/problem-model.js"
 import User from "../models/user.js"
+import ContestQuestions from '../models/contest-problems-model.js';
 
 const execPromise = util.promisify(exec);
 
@@ -173,11 +175,11 @@ const submitCode = async (req, res) => {
             const response = await _runCode(language, code, input, expectedOutput);
             if (response.status == "Failed") {
                 let verdict = "";
-                if (response.message == "timeout") {
-                    verdict = "TIMELIMITED ERROR";
-                } else if (response.message == "Memory limit exceeded") {
-                    verdict = "MEMORY ERROR";
-                } else if (response.message == "wrong") {
+                if (response.message.toLowerCase().includes("timeout")) {
+                    verdict = "TIME LIMIT EXCEEDED";
+                } else if (response.message.toLowerCase().includes("memory limit exceeded")) {
+                    verdict = "MEMORY LIMIT EXCEEDED";
+                } else if (response.message.toLowerCase().includes("wrong")) {
                     verdict = "WRONG ANSWER";
                 } else {
                     verdict = "ERROR";
@@ -216,7 +218,7 @@ const submitContestCode = async (req, res) => {
         const user_id = req.user.user._id;
         let { language, code, problemNumber, contestId } = req.body;
         code = atob(code);
-        
+
         // Validate the input
         if (!language || !code || !problemNumber) {
             return res.status(400).json({
@@ -226,7 +228,7 @@ const submitContestCode = async (req, res) => {
             });
         }
 
-        const problemData = await Problem.findOne({ problemNumber }).exec();
+        const problemData = await ContestQuestions.findOne({ problemNumber, contestId });
         const testCaseId = problemData.testCaseId;
 
         const testCaseData = await TestCase.findOne({ _id: testCaseId });
@@ -238,6 +240,9 @@ const submitContestCode = async (req, res) => {
             });
         }
 
+        const contestSubmissions = await ContestSubmissions.find({
+            user: user_id, problem: problemNumber, contestId
+        });
         const testCases = testCaseData.givenInput.map((input, index) => ({
             input,
             expectedOutput: testCaseData.correctOutput[index]
@@ -257,12 +262,24 @@ const submitContestCode = async (req, res) => {
                 }
 
                 if (verdict != "ERROR") {
-                    const newSubmission = new Submission(
-                        {
-                            user: user_id, problem: problemNumber, code: code, language: language
-                        })
+                    if (!contestSubmissions) {
+                        const newSubmission = new ContestSubmissions(
+                            {
+                                user: user_id, problem: problemNumber, code: code, language: language
+                            }
+                        )
+                        await newSubmission.save();
+                    }
                 }
             }
+        }
+        if (!contestSubmissions) {
+            const newSubmission = new ContestSubmissions(
+                {
+                    user: user_id, problem: problemNumber, code: code, language: language, points: 0
+                }
+            )
+            await newSubmission.save();
         }
     } catch (err) {
         console.error(err);
