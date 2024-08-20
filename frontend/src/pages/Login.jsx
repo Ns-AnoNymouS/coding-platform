@@ -46,7 +46,7 @@ const Login = () => {
       className="min-h-screen bg-gray-100 text-gray-900 flex justify-center"
       style={{
         backgroundImage:
-          "url('https://i.pinimg.com/236x/0c/84/3f/0c843f96a6e997fff64e65057100b4af.jpg')",
+          "url('/images/loginbg.jpg')",
       }}
     >
       <div className="max-w-screen-md m-0 sm:m-10 bg-black/55 shadow sm:rounded-lg flex justify-center flex-1">
