@@ -15,27 +15,29 @@ import {
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import LoginModal from "../components/modals/LoginModal";
-import { useNavigate } from "react-router-dom";
 
-// Dark theme setup
 const theme = createTheme({
   palette: {
     mode: "dark",
   },
 });
 
-const Page = ({ startTime, endTime }) => {
-  const { "contest-id": contestId } = useParams(); // Access the contestId parameter
+const Page = () => {
+  const { "contest-id": contestId } = useParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [contestData, setContestData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [contestState, setContestState] = useState(null);
+  const location = useLocation();
+  const { startTime, endTime } = location.state || {};
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check authentication status
     const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
@@ -46,8 +48,8 @@ const Page = ({ startTime, endTime }) => {
   }, []);
 
   useEffect(() => {
-    if (contestId) {
-      const fetchContestData = async () => {
+    const fetchContestData = async () => {
+      if (contestId) {
         try {
           setLoading(true);
           const response = await axios.get(
@@ -64,22 +66,60 @@ const Page = ({ startTime, endTime }) => {
         } finally {
           setLoading(false);
         }
+      }
+    };
+
+    fetchContestData();
+  }, [contestId]);
+
+  useEffect(() => {
+    if (startTime && endTime) {
+      const calculateTimeLeft = () => {
+        const now = new Date().getTime();
+        const start = new Date(startTime).getTime();
+        const end = new Date(endTime).getTime();
+
+        if (now < start) {
+          const timeDifference = start - now;
+          setContestState("before");
+          setTimeLeft(formatTime(timeDifference));
+        } else if (now >= start && now <= end) {
+          const timeDifference = end - now;
+          setContestState("during");
+          setTimeLeft(formatTime(timeDifference));
+        } else {
+          setContestState("after");
+          setTimeLeft("Contest is over");
+        }
       };
 
-      fetchContestData();
+      // Initial calculation
+      calculateTimeLeft();
+      // Update time left every second
+      const intervalId = setInterval(calculateTimeLeft, 1000);
+
+      return () => clearInterval(intervalId);
     }
-  }, [contestId]);
+  }, [startTime, endTime]);
+
+  const formatTime = (timeDifference) => {
+    const hours = Math.floor(
+      (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor(
+      (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+    );
+    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+    return `${hours}h ${minutes}m ${seconds}s`;
+  };
 
   const handleModalClose = () => {
     setModalOpen(false);
   };
 
-  const navigate = useNavigate();
-
-  // Define columns for problems table
   const problemColumns = [
     { id: "id", label: "ID" },
-    { id: "title", label: "Title", align: "left" }, // Ensure title is left-aligned for better readability
+    { id: "title", label: "Title", align: "left" },
     { id: "positive", label: "Positive Points", align: "right" },
     { id: "negative", label: "Negative Points", align: "right" },
   ];
@@ -90,21 +130,20 @@ const Page = ({ startTime, endTime }) => {
     { id: "finishTime", label: "Finish Time" },
   ];
 
-  // Extract rows from the questions in contestData
   const problemRows =
     contestData?.questions?.map((question, index) => ({
-      id: index + 1, // Auto-incrementing ID
+      id: index + 1,
       title: (
         <Link
-          href={`/contest/${contestId}/${question.id}`} // Change this to the appropriate URL for problem detail
+          href={`/contest/${contestId}/${question.id}`}
           color="inherit"
           underline="hover"
         >
           {question.title}
         </Link>
-      ), // Render title as a link
-      positive: question?.points?.positive, // Access points safely
-      negative: question?.points?.negative, // Access points safely
+      ),
+      positive: question?.points?.positive,
+      negative: question?.points?.negative,
     })) || [];
 
   const getFinishTime = (finishTime) => finishTime || "Running";
@@ -115,7 +154,6 @@ const Page = ({ startTime, endTime }) => {
       finishTime: getFinishTime(row.finishTime),
     })) || [];
 
-  // Render Table component inline
   const renderTable = (columns, rows) => (
     <TableContainer
       component={Paper}
@@ -154,48 +192,81 @@ const Page = ({ startTime, endTime }) => {
     </TableContainer>
   );
 
+  if (loading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <Navbar />
+        <Container>
+          <Typography variant="h6" textAlign="center">
+            Loading...
+          </Typography>
+        </Container>
+      </ThemeProvider>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return <LoginModal open={modalOpen} onClose={handleModalClose} />;
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <Navbar />
       <Container>
-        {loading ? (
-          <Typography variant="h6" textAlign="center">
-            Loading...
-          </Typography>
-        ) : isLoggedIn ? (
-          contestData && (
-            <>
-              <Box p={3}>
-                <Box className="flex justify-between">
-                  <Typography
-                    variant="h4"
-                    display={"block"}
-                    textAlign={"center"}
-                    gutterBottom
-                  >
-                    {contestData?.contestTitle} {/* Displaying contest title */}
-                  </Typography>
-                  {contestData.isHost && (
-                    <Button
-                      variant="outlined"
-                      onClick={() => navigate(`/contest/${contestId}/add`)}
-                      sx={{
-                        backgroundColor: "white",
-                        color: "black",
-                        "&:hover": { color: "white" },
-                        maxHeight: "40px",
-                        textTransform: "none",
-                      }}
-                    >
-                      Add Problem
-                    </Button>
-                  )}
-                </Box>
-
-                <Typography variant="body1" color="textSecondary">
-                  {contestData?.description}{" "}
+        {contestData && (
+          <>
+            <Box p={3}>
+              <Box display="flex" justifyContent="space-between">
+                <Typography
+                  variant="h4"
+                  display={"block"}
+                  textAlign={"center"}
+                  gutterBottom
+                >
+                  {contestData?.contestTitle}
                 </Typography>
+                {contestData.isHost && contestState !== "after" && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => navigate(`/contest/${contestId}/add`)}
+                    sx={{
+                      backgroundColor: "white",
+                      color: "black",
+                      "&:hover": { color: "white" },
+                      maxHeight: "40px",
+                      textTransform: "none",
+                    }}
+                  >
+                    Add Problem
+                  </Button>
+                )}
               </Box>
+
+              <Typography variant="body1" color="textSecondary">
+                {contestData?.description}
+              </Typography>
+
+              {timeLeft && (
+                <Box
+                  mt={2}
+                  p={2}
+                  border="1px solid rgba(255, 255, 255, 0.2)"
+                  borderRadius="8px"
+                  bgcolor="rgba(255, 255, 255, 0.1)"
+                  textAlign="center"
+                >
+                  <Typography variant="h6" color="textSecondary">
+                    {contestState === "before"
+                      ? `Contest starts in: ${timeLeft}`
+                      : contestState === "during"
+                      ? `Time left: ${timeLeft}`
+                      : timeLeft}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
+            {(contestState === "during" || contestState === "after") && (
               <Box display="flex" mt={2}>
                 <Box flex={3} mr={2}>
                   <Typography variant="h6" gutterBottom>
@@ -205,15 +276,13 @@ const Page = ({ startTime, endTime }) => {
                 </Box>
                 <Box flex={2}>
                   <Typography variant="h6" gutterBottom>
-                    Scoreboard
+                    {contestState === "after" ? "Final Rankings" : "Scoreboard"}
                   </Typography>
                   {renderTable(scoreboardColumns, scoreboardRows)}
                 </Box>
               </Box>
-            </>
-          )
-        ) : (
-          <LoginModal open={modalOpen} onClose={handleModalClose} />
+            )}
+          </>
         )}
       </Container>
     </ThemeProvider>
