@@ -50,9 +50,6 @@ const ProblemStatement = ({
             {title}
           </Typography>
           <Chip
-            label={solved}
-          />
-          <Chip
             label={difficulty}
             color={getDifficultyColor(difficulty)}
             sx={{ marginLeft: 2 }}
