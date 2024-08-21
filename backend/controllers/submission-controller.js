@@ -14,7 +14,6 @@ import Contest from '../models/contest-model.js';
 import { getSocketInstance } from '../sockets-initializer.js';
 
 const execPromise = util.promisify(exec);
-const io = getSocketInstance();
 
 const semaphore = new Semaphore(process.env.MAX_CONCURRENT_PROCESSES);
 
@@ -39,7 +38,11 @@ const _runCode = async (language, code, input, expectedOutput) => {
         await fs.writeFile(inputFile, input);
 
         // Construct the Docker run command
-        const command = `docker run --rm -e EXECUTABLE="${executable}" -v "${process.cwd()}:/usr/src/app" --memory="256m" --memory-swap="500m" --cpus="1.0" ${imageName}`;
+        // -v "${process.cwd()}:/usr/src/app:ro"      
+        const command = `docker run --rm -e EXECUTABLE="${executable}" \
+        -v "${process.cwd()}/${executable}.txt:/usr/src/app/${executable}.txt:ro" \
+        -v "${process.cwd()}/${fileName}:/usr/src/app/${fileName}:ro" \
+        --memory="256m" --memory-swap="500m" --cpus="1.0" ${imageName}`;
 
         const timeout = 3000; // 3 seconds
         const execPromiseWithTimeout = (cmd) => {
@@ -224,6 +227,7 @@ const submitCode = async (req, res) => {
 
 const submitContestCode = async (req, res) => {
     try {
+        const io = getSocketInstance();
         const user_id = req.user.user._id;
         let { language, code, problemNumber, contestId } = req.body;
         code = atob(code);

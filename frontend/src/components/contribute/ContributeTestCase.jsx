@@ -13,9 +13,9 @@ import axios from "axios";
 
 const schema = yup
   .object({
-    problemName: yup.string().required("Problem Name is required"),
-    input: yup.string().required("Input is required"),
-    output: yup.string().required("Output is required"),
+    problemName: yup.string().trim().required("Problem Name is required"),
+    input: yup.string().trim().required("Input is required"),
+    output: yup.string().trim().required("Output is required"),
   })
   .required();
 
