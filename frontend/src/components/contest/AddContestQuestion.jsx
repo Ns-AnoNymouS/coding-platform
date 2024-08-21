@@ -24,8 +24,8 @@ import axios from "axios";
 // Validation schema
 const schema = yup
   .object({
-    problemName: yup.string().required("Problem Name is required"),
-    description: yup.string().required("Description is required"),
+    problemName: yup.string().trim().required("Problem Name is required"),
+    description: yup.string().trim().required("Description is required"),
     difficulty: yup.string().required("Difficulty is required"),
     points: yup
       .number()
@@ -34,9 +34,8 @@ const schema = yup
       .integer("Points must be an integer"),
     negativePoints: yup
       .number()
-      .required("Negative Points are required")
       .integer("Negative Points must be an integer"),
-    constraints: yup.string().required("Constraints are required"),
+    constraints: yup.string().trim().required("Constraints are required"),
     testCaseFile: yup.mixed().required("Test case file is required"),
   })
   .required();

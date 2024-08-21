@@ -17,14 +17,14 @@ import axios from "axios";
 
 const schema = yup
   .object({
-    title: yup.string().required("Title is required"),
+    title: yup.string().trim().required("Title is required"),
     description: yup
-      .string()
+      .string().trim()
       .max(5000, "Description must be less than 5000 characters")
       .required("Description is required"),
-    constraints: yup.string(),
-    input: yup.string().required("Input is required"),
-    output: yup.string().required("Output is required"),
+    constraints: yup.string().trim(),
+    input: yup.string().trim().required("Input is required"),
+    output: yup.string().trim().required("Output is required"),
     tags: yup.array().of(yup.string()).min(1, "At least one tag is required"),
     difficulty: yup
       .string()
