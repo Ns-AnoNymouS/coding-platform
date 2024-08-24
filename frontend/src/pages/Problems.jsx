@@ -100,7 +100,7 @@ const ProblemsPage = () => {
   const getAllProblems = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get("http://localhost:6969/problems", {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/problems`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -304,9 +304,9 @@ const ProblemsPage = () => {
             </TableContainer>
             <Box className="flex  items-center justify-between mt-4">
               <Pagination
-                count={Math.ceil(totProblems / rowsPerPage)} // Total number of pages
-                page={page + 1} // Pages are 1-based for the Pagination component
-                onChange={(event, value) => setPage(value - 1)} // Update page (convert back to 0-based index)
+                count={Math.ceil(totProblems / rowsPerPage)} 
+                page={page + 1} 
+                onChange={(event, value) => setPage(value - 1)} 
                 renderItem={(item) => (
                   <PaginationItem
                     slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
@@ -322,8 +322,8 @@ const ProblemsPage = () => {
                 <InputLabel id="rows-per-page-label">Rows per page</InputLabel>
                 <Select
                   labelId="rows-per-page-label"
-                  value={rowsPerPage} // Default value from state
-                  onChange={(e) => setRowsPerPage(Number(e.target.value))} // Update state with the selected value
+                  value={rowsPerPage} 
+                  onChange={(e) => setRowsPerPage(Number(e.target.value))}
                   label="Rows per page"
                 >
                   <MenuItem value={10}>10</MenuItem>

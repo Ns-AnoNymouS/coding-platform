@@ -41,7 +41,6 @@ const Navbar = () => {
 
   },[isLoggedIn])
 
-  // Function to determine if a button should be highlighted
   const isActive = (path) => location.pathname === path;
 
   return (

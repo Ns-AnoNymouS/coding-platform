@@ -25,7 +25,7 @@ const SignUp = () => {
   const navigate = useNavigate();
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:6969/signup", data, {
+      const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/signup`, data, {
         validateStatus: (status) => {
           return status >= 200 && status < 500;
         },
@@ -52,7 +52,7 @@ const SignUp = () => {
                 <button
                   className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-gray-50 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
                   onClick={async () => {
-                      window.location.href = "http://127.0.0.1:6969/auth/google"
+                      window.location.href = `${process.env.REACT_APP_BASE_URL}/auth/google`
                   }}
                 >
                   <div className="bg-white p-2 rounded-full">
@@ -81,7 +81,7 @@ const SignUp = () => {
                 <button
                   className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-gray-50 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline mt-5"
                   onClick={() => {
-                    window.location.href = "http://127.0.0.1:6969/auth/github"
+                    window.location.href = `${process.env.REACT_APP_BASE_URL}/auth/github`
 
                   }}
                 >

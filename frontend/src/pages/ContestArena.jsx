@@ -62,7 +62,7 @@ const ContestArena = () => {
     const fetchProblemData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:6969/get-contest-question-by-id",
+          `${process.env.REACT_APP_BASE_URL}/get-contest-question-by-id`,
           {
             params: { questionId: problemNumber },
             headers: {
@@ -126,7 +126,7 @@ const ContestArena = () => {
             save: false,
           });
           const response = await axios.post(
-            "http://localhost:6969/run-arena-code",
+            `${process.env.REACT_APP_BASE_URL}/run-arena-code`,
             data,
             {
               validateStatus: (status) => status >= 200 && status < 500,
@@ -194,7 +194,7 @@ const ContestArena = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:6969/run-arena-code",
+          `${process.env.REACT_APP_BASE_URL}/run-arena-code`,
           data,
           {
             validateStatus: (status) => status >= 200 && status < 500,
@@ -252,7 +252,7 @@ const ContestArena = () => {
           save: false,
         });
         const response = await axios.post(
-          "http://localhost:6969/submit-contest-code",
+          `${process.env.REACT_APP_BASE_URL}/submit-contest-code`,
           data,
           {
             headers: {
@@ -322,7 +322,7 @@ const ContestArena = () => {
   const handleSubmissions = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:6969/get-submissions",
+        `${process.env.REACT_APP_BASE_URL}/get-submissions`,
         {
           params: { problemNumber: problemNumber, contestId: contestId },
           headers: {
@@ -385,7 +385,6 @@ const ContestArena = () => {
               position: "relative",
             }}
           >
-            {/* Back Button and Tabs */}
             <Box
               sx={{
                 display: "flex",
@@ -400,7 +399,7 @@ const ContestArena = () => {
                 onClick={() => navigate(`/contest/${contestId}`)}
                 sx={{
                   color: "#ffffff",
-                  flexShrink: 0, // Prevent the back button from shrinking
+                  flexShrink: 0,
                 }}
               >
                 <ArrowBackIcon />
@@ -418,9 +417,9 @@ const ContestArena = () => {
                   onChange={handleTabChange}
                   aria-label="Tabs for Problem, Solutions, and Submissions"
                   sx={{
-                    marginBottom: 0, // Remove bottom margin
-                    minHeight: "auto", // Remove any default min-height
-                    padding: 0, // Remove any padding
+                    marginBottom: 0,
+                    minHeight: "auto", 
+                    padding: 0, 
                   }}
                 >
                   <Tab
@@ -466,7 +465,6 @@ const ContestArena = () => {
               </Box>
             </Box>
 
-            {/* Content */}
             <Box
               sx={{
                 display: "flex",

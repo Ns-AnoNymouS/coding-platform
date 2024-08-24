@@ -66,7 +66,7 @@ const ContributeQuestion = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:6969/create-pending-problem",
+        `${process.env.REACT_APP_BASE_URL}/create-pending-problem`,
         format,
         {
           headers: {

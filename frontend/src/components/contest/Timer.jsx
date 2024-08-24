@@ -44,7 +44,7 @@ const CountdownTimer = ({ startTime, endTime }) => {
   };
 
   const checkCritical = (timeDifference) => {
-    const criticalTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+    const criticalTime = 10 * 60 * 1000;
     if (timeDifference <= criticalTime) {
       setIsCritical(true);
     } else {
@@ -77,7 +77,7 @@ const CountdownTimer = ({ startTime, endTime }) => {
         variant="h6"
         sx={{
           fontWeight: 'bold',
-          color: isCritical ? 'red' : 'white', // Red if critical, else white
+          color: isCritical ? 'red' : 'white',
           marginLeft: 2,
         }}
       >

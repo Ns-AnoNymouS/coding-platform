@@ -52,7 +52,7 @@ const CodingArena = () => {
     const fetchProblemData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:6969/problem/${problem_id}`
+          `${process.env.REACT_APP_BASE_URL}/problem/${problem_id}`
         );
 
         if (response.data.status === "ok") {
@@ -103,7 +103,7 @@ const CodingArena = () => {
         save: true,
       });
       const response = await axios.post(
-        "http://127.0.0.1:6969/save-code",
+        `${process.env.REACT_APP_BASE_URL}/save-code`,
         formData,
         {
           headers: {
@@ -132,7 +132,7 @@ const CodingArena = () => {
   const fetchCode = async (selectedLanguage) => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:6969/get-saved-code?language=${selectedLanguage}&problemNumber=${problem_id}`,
+        `${process.env.REACT_APP_BASE_URL}/get-saved-code?language=${selectedLanguage}&problemNumber=${problem_id}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -174,7 +174,7 @@ const CodingArena = () => {
             save: false,
           });
           const response = await axios.post(
-            "http://localhost:6969/run-arena-code",
+            `${process.env.REACT_APP_BASE_URL}/run-arena-code`,
             data,
             {
               validateStatus: (status) => status >= 200 && status < 500,
@@ -242,7 +242,7 @@ const CodingArena = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:6969/run-arena-code",
+          `${process.env.REACT_APP_BASE_URL}/run-arena-code`,
           data,
           {
             validateStatus: (status) => status >= 200 && status < 500,
@@ -298,7 +298,7 @@ const CodingArena = () => {
           save: false,
         });
         const response = await axios.post(
-          "http://localhost:6969/submit-code",
+          `{process.env.REACT_APP_BASE_URL}/submit-code`,
           data,
           {
             headers: {
@@ -367,7 +367,7 @@ const CodingArena = () => {
 
   const handleSubmissions = async ()=>{
     try {
-      const response = await axios.get("http://localhost:6969/get-submissions", {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/get-submissions`, {
         params: { problemNumber: problem_id },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -446,7 +446,7 @@ const CodingArena = () => {
                 onClick={() => navigate(`/problems`)}
                 sx={{
                   color: "#ffffff",
-                  flexShrink: 0, // Prevent the back button from shrinking
+                  flexShrink: 0,
                 }}
               >
                 <ArrowBackIcon />
@@ -464,9 +464,9 @@ const CodingArena = () => {
                   onChange={handleTabChange}
                   aria-label="Tabs for Problem, Solutions, and Submissions"
                   sx={{
-                    marginBottom: 0, // Remove bottom margin
-                    minHeight: "auto", // Remove any default min-height
-                    padding: 0, // Remove any padding
+                    marginBottom: 0,
+                    minHeight: "auto",
+                    padding: 0, 
                   }}
                 >
                   <Tab

@@ -63,7 +63,7 @@ const ContestForm = () => {
         },
       };
       const response = await axios.post(
-        "http://localhost:6969/create-contest",
+        `${process.env.REACT_APP_BASE_URL}/create-contest`,
         formattedData,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -120,11 +120,11 @@ const ContestForm = () => {
                         sx: {
                           "& .MuiOutlinedInput-root": {
                             "&.Mui-focused fieldset": {
-                              borderColor: "white", // Outline color when focused
+                              borderColor: "white", 
                             },
                           },
                           "& .MuiInputBase-input": {
-                            color: "white", // Text color
+                            color: "white", 
                           },
                         },
                       }}
@@ -148,17 +148,17 @@ const ContestForm = () => {
                       error={!!errors.contestDescription}
                       helperText={errors.contestDescription?.message}
                       InputLabelProps={{
-                        style: { color: "white" }, // Label color
+                        style: { color: "white" }, 
                       }}
                       InputProps={{
                         sx: {
                           "& .MuiOutlinedInput-root": {
                             "&.Mui-focused fieldset": {
-                              borderColor: "white", // Outline color when focused
+                              borderColor: "white", 
                             },
                           },
                           "& .MuiInputBase-input": {
-                            color: "white", // Text color
+                            color: "white", 
                           },
                         },
                       }}
@@ -183,17 +183,17 @@ const ContestForm = () => {
                             error={!!errors.startTime}
                             helperText={errors.startTime?.message}
                             InputLabelProps={{
-                              style: { color: "white" }, // Label color
+                              style: { color: "white" },
                             }}
                             InputProps={{
                               sx: {
                                 "& .MuiOutlinedInput-root": {
                                   "&.Mui-focused fieldset": {
-                                    borderColor: "white", // Outline color when focused
+                                    borderColor: "white", 
                                   },
                                 },
                                 "& .MuiInputBase-input": {
-                                  color: "white", // Text color
+                                  color: "white", 
                                 },
                               },
                             }}
@@ -221,17 +221,17 @@ const ContestForm = () => {
                             error={!!errors.endTime}
                             helperText={errors.endTime?.message}
                             InputLabelProps={{
-                              style: { color: "white" }, // Label color
+                              style: { color: "white" }, 
                             }}
                             InputProps={{
                               sx: {
                                 "& .MuiOutlinedInput-root": {
                                   "&.Mui-focused fieldset": {
-                                    borderColor: "white", // Outline color when focused
+                                    borderColor: "white", 
                                   },
                                 },
                                 "& .MuiInputBase-input": {
-                                  color: "white", // Text color
+                                  color: "white", 
                                 },
                               },
                             }}

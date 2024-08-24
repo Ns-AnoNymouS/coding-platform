@@ -23,7 +23,7 @@ const Landing = () => {
 
   const getAllProblems = async () => {
     try {
-      const response = await axios.get("http://localhost:6969/problems");
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/problems`);
       setEasyProblems(response.data.easyProblems);
       setMediumProblems(response.data.mediumProblems);
       setHardProblems(response.data.hardProblems);

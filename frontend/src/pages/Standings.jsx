@@ -25,11 +25,11 @@ const Standings = () => {
     const fetchLeaderboard = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:6969/get-standings",
+          `${process.env.REACT_APP_BASE_URL}/get-standings`,
           {
             params: {
               contestId,
-              page: page + 1, // page number (1-indexed)
+              page: page + 1, 
               limit: rowsPerPage,
             },
           }
@@ -99,9 +99,7 @@ const Standings = () => {
                             {(() => {
                               const startTime = new Date(row.schedule.start);
                               const endTime = new Date(row.participants.lastSubmission);
-                              const duration = endTime - startTime; // Difference in milliseconds
-
-                              // Format the duration as needed
+                              const duration = endTime - startTime; 
                               const hours = Math.floor(
                                 duration / (1000 * 60 * 60)
                               );

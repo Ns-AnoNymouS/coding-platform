@@ -23,7 +23,7 @@ const CodingPlayGround = () => {
 
   const fetchCode = async (selectedLanguage) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:6969/get-saved-code?language=${selectedLanguage}`, {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/get-saved-code?language=${selectedLanguage}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -53,7 +53,7 @@ const CodingPlayGround = () => {
   
     try {
       const response = await axios.post(
-        "http://127.0.0.1:6969/save-code",
+        `${process.env.REACT_APP_BASE_URL}/save-code`,
         formData,
         {
           headers: {
@@ -85,7 +85,7 @@ const CodingPlayGround = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:6969/run-playground-code",
+        `${process.env.REACT_APP_BASE_URL}/run-playground-code`,
         formData,
         {
           headers: {

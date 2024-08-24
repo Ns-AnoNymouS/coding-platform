@@ -14,7 +14,7 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
   const handleOpenModal = async (testCase) => {
     try {
       const response = await axios.get(
-        `http://localhost:6969/problem/${testCase.problemNumber}`
+        `${process.env.REACT_APP_BASE_URL}/problem/${testCase.problemNumber}`
       );
       setSelectedTestCase({
         ...response.data.data,
@@ -36,7 +36,7 @@ const TestCaseTable = ({ testCases, onRefresh }) => {
   const handleApproveOrDecline = async (testcaseID, action) => {
     try {
       const response = await axios.post(
-        `http://localhost:6969/${action}-test-case`,
+        `${process.env.REACT_APP_BASE_URL}/${action}-test-case`,
         { testcaseID },
         {
           headers: {

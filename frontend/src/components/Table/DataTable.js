@@ -15,7 +15,7 @@ const DataTable = ({ rows, onRefresh }) => {
   const Approve = async (problemId) => {
     try {
       const response = await axios.post(
-        "http://localhost:6969/create-problem",
+        `${process.env.REACT_APP_BASE_URL}/create-problem`,
         { problemId },
         {
           headers: {
@@ -37,7 +37,7 @@ const DataTable = ({ rows, onRefresh }) => {
   const Decline = async (problemId) => {
     try {
       const response = await axios.post(
-        "http://localhost:6969/decline-pending-problem",
+        `${process.env.REACT_APP_BASE_URL}/decline-pending-problem`,
         { problemId },
         {
           headers: {

@@ -28,7 +28,7 @@ const ForgotPassword = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "http://localhost:6969/forgot-password",
+        `${process.env.REACT_APP_BASE_URL}/forgot-password`,
         data
       );
       alert(response.data.message);

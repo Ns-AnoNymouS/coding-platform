@@ -23,16 +23,16 @@ const ContributeTestCase = () => {
   const [problems, setProblems] = useState([]);
   const [selectedProblem, setSelectedProblem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(false); // State to manage loading
+  const [loading, setLoading] = useState(false); 
   const {
     control,
     handleSubmit,
-    reset, // Access reset from useForm
+    reset, 
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      problemName: null, // Initial value set to null
+      problemName: null, 
       input: "",
       output: "",
     },
@@ -41,7 +41,7 @@ const ContributeTestCase = () => {
   useEffect(() => {
     const getAllProblems = async () => {
       try {
-        const response = await axios.get("http://localhost:6969/problems", {
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/problems`, {
           params: {
             title: searchQuery,
           },
@@ -58,7 +58,7 @@ const ContributeTestCase = () => {
   }, [searchQuery]);
 
   const onSubmit = async (data) => {
-    setLoading(true); // Set loading to true when submission starts
+    setLoading(true); 
     try {
       const formattedData = {
         problemNumber: selectedProblem?.problem_id,
@@ -66,7 +66,7 @@ const ContributeTestCase = () => {
         correctOutput: data.output,
       };
       const response = await axios.post(
-        "http://localhost:6969/add-pending-test-case",
+        `${process.env.REACT_APP_BASE_URL}/add-pending-test-case`,
         formattedData,
         {
           headers: {
@@ -78,8 +78,8 @@ const ContributeTestCase = () => {
 
       if (response.data.status === "ok") {
         alert("Test cases Submitted for verification");
-        reset(); // Reset the form fields after successful submission
-        setSelectedProblem(null); // Reset selected problem
+        reset();
+        setSelectedProblem(null); 
       } else {
         alert(response.data.message);
       }
@@ -87,7 +87,7 @@ const ContributeTestCase = () => {
       console.log(err);
       alert("An error occurred while adding the test cases");
     } finally {
-      setLoading(false); // Set loading to false after submission is complete
+      setLoading(false); 
     }
   };
 
@@ -124,7 +124,7 @@ const ContributeTestCase = () => {
                   field.onChange(newValue ? newValue.title : null);
                   setSelectedProblem(newValue);
                 }}
-                value={selectedProblem || null} // Ensure correct value is used
+                value={selectedProblem || null}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -185,7 +185,7 @@ const ContributeTestCase = () => {
             type="submit"
             variant="contained"
             color="secondary"
-            disabled={loading} // Disable the button when loading
+            disabled={loading}
           >
             {loading ? "Submitting..." : "Submit"}
           </Button>

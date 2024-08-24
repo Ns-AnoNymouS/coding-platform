@@ -62,19 +62,19 @@ const Contest = () => {
 
       const [upcomingResponse, ongoingResponse, pastResponse] =
         await Promise.all([
-          axios.get("http://localhost:6969/all-contest", {
+          axios.get(`${process.env.REACT_APP_BASE_URL}/all-contest`, {
             params: { type: "upcoming" },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }),
-          axios.get("http://localhost:6969/all-contest", {
+          axios.get(`${process.env.REACT_APP_BASE_URL}/all-contest`, {
             params: { type: "ongoing" },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }),
-          axios.get("http://localhost:6969/all-contest", {
+          axios.get(`${process.env.REACT_APP_BASE_URL}/all-contest`, {
             params: { type: "previous", limit: rowsPerPage, page: page + 1 },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -119,7 +119,7 @@ const Contest = () => {
 
   const handleContestClick = (contest) => {
     const url = `/contest/${contest._id}`;
-    console.log("Navigating to:", url); // Log the URL to check if it's correct
+    console.log("Navigating to:", url); 
     navigate(url, {
       state: {
         startTime: contest.schedule.start,
@@ -132,7 +132,7 @@ const Contest = () => {
   const handleRegisterClick = async (contestId) => {
     try {
       await axios.post(
-        "http://localhost:6969/register-contest",
+        `${process.env.REACT_APP_BASE_URL}/register-contest`,
         { contestId: contestId },
         {
           headers: {
@@ -288,12 +288,12 @@ const Contest = () => {
         <Button
           variant="contained"
           sx={{
-            backgroundColor: "#f5f5f5", // Light gray background
-            color: "#000", // Black text
+            backgroundColor: "#f5f5f5", 
+            color: "#000",
             marginLeft: 2,
             "&:hover": {
-              backgroundColor: "#a1a1a1", // Custom zinc color on hover
-              color: "#000", // White text on hover
+              backgroundColor: "#a1a1a1",
+              color: "#000", 
             },
             textTransform: "none",
           }}

@@ -13,7 +13,7 @@ const AdminPage = () => {
     const fetchProblems = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:6969/get-pending-problem",
+          `${process.env.REACT_APP_BASE_URL}/get-pending-problem`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -29,7 +29,7 @@ const AdminPage = () => {
     const fetchTestCases = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:6969/get-pending-testcases",
+          `${process.env.REACT_APP_BASE_URL}/get-pending-testcases`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

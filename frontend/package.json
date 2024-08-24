@@ -15,10 +15,12 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.4",
+    "crypto": "^1.0.1",
     "dayjs": "^1.11.12",
     "lodash.debounce": "^4.0.8",
     "monaco-editor": "^0.50.0",
     "monaco-themes": "^0.4.4",
+    "path": "^0.12.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.52.2",
@@ -56,6 +58,9 @@
     ]
   },
   "devDependencies": {
+    "crypto-browserify": "^3.12.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
     "tailwindcss": "^3.4.9"
   }
 }

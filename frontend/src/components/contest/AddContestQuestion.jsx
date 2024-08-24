@@ -21,7 +21,6 @@ import InfoIcon from "@mui/icons-material/Info";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
-// Validation schema
 const schema = yup
   .object({
     problemName: yup.string().trim().required("Problem Name is required"),
@@ -76,7 +75,7 @@ const AddContestQuestion = () => {
       formData.append("constraints", data.constraints);
       formData.append("file", data.testCaseFile);
 
-      const response = await axios.post("http://localhost:6969/create-contest-problem", formData, {
+      const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/create-contest-problem`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${localStorage.getItem("token")}`,

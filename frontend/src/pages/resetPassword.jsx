@@ -41,7 +41,7 @@ const ResetPassword = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        `http://localhost:6969/reset-password/${token}`,
+        `${process.env.REACT_APP_BASE_URL}/reset-password/${token}`,
         data,
         {
           validateStatus: (status) => status >= 200 && status < 500,

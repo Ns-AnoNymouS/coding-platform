@@ -54,7 +54,7 @@ const Page = () => {
     socket.emit('joinRoom', { contestId });
 
     socket.on("updateLeaderboard", async () => {
-      const response = await axios.get("http://localhost:6969/get-standings", {
+      const response = await axios.get(`$process.env.REACT_APP_BASE_URL}/get-standings`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -88,7 +88,7 @@ const Page = () => {
         try {
           setLoading(true);
           const response = await axios.get(
-            `http://localhost:6969/get-contest-question/${contestId}`,
+            `${process.env.REACT_APP_BASE_URL}/get-contest-question/${contestId}`,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -99,7 +99,7 @@ const Page = () => {
           setContestData(contestData);
           setStartTime(contestData.schedule.start);
           setEndTime(contestData.schedule.end);
-          const res = await axios.get("http://localhost:6969/get-standings", {
+          const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/get-standings`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
@@ -142,9 +142,7 @@ const Page = () => {
         }
       };
 
-      // Initial calculation
       calculateTimeLeft();
-      // Update time left every second
       const intervalId = setInterval(calculateTimeLeft, 1000);
 
       return () => clearInterval(intervalId);
@@ -205,19 +203,15 @@ const Page = () => {
     const formattedScoreboardRows =
     Array.isArray(scoreboardRows) &&
     scoreboardRows.map((row) => {
-      // Extract relevant dates
       const startTime = new Date(row.schedule.start);
       const lastSubmission = new Date(row.participants.lastSubmission);
   
-      // Calculate duration
       const duration = lastSubmission - startTime;
   
-      // Format the duration
       const hours = Math.floor(duration / (1000 * 60 * 60));
       const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((duration % (1000 * 60)) / 1000);
       
-      // Return the formatted row
       return {
         name: row.participants.username,
         score: row.participants.score,
